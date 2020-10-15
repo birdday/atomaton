@@ -76,17 +76,16 @@ def create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True
     return atoms_extended, mol_ids_extended, pseudo_indicies
 
 
-def guess_bonds(atoms, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, cutoff=1.5, periodic='xyz'):
+def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, cutoff=1.5, periodic='xyz'):
 
-    # add deepcopy atoms
+    atoms = copy.deepcopy(atoms_in)
+
     if fractional_in == True:
         atoms = convert_to_cartesian(atoms, cell_lengths, cell_angles, degrees=True)
     atoms_xyz = atoms.get_positions()
     atom_types = atoms.get_chemical_symbols()
 
     atoms_ext, mol_ids_ext, pseudo_indicies = create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, fractional_out=False, periodic=periodic)
-    print(len(atoms))
-    print(len(atoms_ext))
     atoms_ext_xyz = atoms_ext.get_positions()
     atoms_ext_types = atoms_ext.get_chemical_symbols()
 
@@ -96,8 +95,6 @@ def guess_bonds(atoms, mol_ids, cell_lengths, cell_angles, degrees=True, fractio
     num_across_boundary = 0
 
     for i in range(len(atoms_xyz)):
-        # if mod(i, 100) == 0:
-        #     print(i, '  Still running...')
         p1, type1 = atoms_xyz[i], atom_types[i]
 
         for j in range(i+1,len(atoms_ext)):
