@@ -165,7 +165,7 @@ def guess_angles(atoms, bonds):
     return all_angles, all_angle_types
 
 
-def guess_dihedrals_and_impropers(atoms, bonds, angles):
+def guess_dihedrals_and_impropers(atoms, bonds, angles, improper_tol=0.1):
     all_dihedrals = []
     all_dihedral_types = []
     all_impropers = []
@@ -191,13 +191,30 @@ def guess_dihedrals_and_impropers(atoms, bonds, angles):
                 all_dihedral_types.extend([ordered_atom_types])
 
             if len(atoms_in_group) == 4 and shared_atom == [center_atom]:
-                all_impropers.extend([[center_atom, atoms_in_group]])
-
+                # Impropers should lie approxiamtely in the same plane
                 ordered_atoms = set(copy.deepcopy(atoms_in_group))
                 ordered_atoms = ordered_atoms.difference([center_atom])
-                ordered_atom_types = sorted(atoms[index].symbol for index in ordered_atoms)
-                ordered_atom_types.insert(0, atoms[center_atom].symbol)
-                all_improper_types.extend([ordered_atom_types])
+                ordered_atoms = list(ordered_atoms)
+
+                # Create two vectors from non-central points
+                pc = atoms[center_atom].position
+                p0  = atoms[ordered_atoms[0]].position
+                v01 = atoms[ordered_atoms[1]].position - atoms[ordered_atoms[0]].position
+                v02 = atoms[ordered_atoms[2]].position = atoms[ordered_atoms[0]].position
+                a,b,c = np.cross(v01, v02)
+                d = -1*(a*p0[0] + b*p0[1] + c*p0[2])
+                num, den = a*pc[0]+b*pc[1]+c*pc[2]-d, (a**2 + b**2 +c**2)**0.5
+                if den != 0:
+                    dmin = abs(num/den)
+                else:
+                    dmin = 0
+                # print(a,b,c,d,dmin)
+
+                if dmin <= improper_tol:
+                    all_impropers.extend([[center_atom, atoms_in_group]])
+                    ordered_atom_types = sorted(atoms[index].symbol for index in ordered_atoms)
+                    ordered_atom_types.insert(0, atoms[center_atom].symbol)
+                    all_improper_types.extend([ordered_atom_types])
 
     return all_dihedrals, all_dihedral_types, all_impropers, all_improper_types
 
