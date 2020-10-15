@@ -5,11 +5,13 @@ import numpy as np
 import glob
 from collections import OrderedDict
 
-from helper import (
+
+from lammps_tools.helper import (
     mod,
     convert_to_fractional,
     convert_to_cartesian
     )
+
 
 def calculate_distance(p1, p2):
     dist = np.sum([(p1[i]-p2[i])**2 for i in range(len(p1))])**0.5

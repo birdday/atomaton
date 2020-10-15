@@ -6,7 +6,7 @@ import glob
 from collections import OrderedDict
 
 
-from helper import (get_unique_items)
+from lammps.helper import (get_unique_items)
 
 
 def get_lammps_box_parameters(cell_lengths, cell_angles, degrees=True):

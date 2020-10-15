@@ -3,7 +3,8 @@ from ase import Atoms, io, spacegroup, build, visualize
 import copy
 import numpy as np
 
-from helper import (
+
+from lammps_tools.helper import (
     mod,
     get_unique_items,
     get_center_of_positions,
@@ -12,7 +13,7 @@ from helper import (
     convert_to_cartesian
     )
 
-    
+
 def insert_molecule(mof, molecule, num_cells=[1,1,1], spacegroup='P1', mol_shift=[0,0,0], filename=None):
 
     # Load MOF and Molecule files, if needed
