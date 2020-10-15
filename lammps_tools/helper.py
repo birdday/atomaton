@@ -72,3 +72,32 @@ def convert_to_cartesian(ase_atoms, cell_lengths, cell_angles, degrees=True):
     ase_atoms.set_positions(all_xyx_cart.transpose())
 
     return ase_atoms
+
+
+def write_pdb_with_bonds(filename, atoms, bonds, cell_lengths, cell_angles, spacegroup='P 1', spacegroup_number='1', fractional_in=False, degrees=True):
+
+    if degrees == False:
+        cell_angles = np.deg2rad(cell_angles)
+    if fractional_in == True:
+        atoms = convert_to_cartesian(atoms, cell_lengths, cell_angles, degrees=True)
+
+    f = open(filename, 'w')
+
+    f.write('COMPND    UNNAMED\n')
+    f.write('AUTHOR    Brian Day - LAMMPS Tools2\n')
+    format = 'CRYST1%9.3f%9.3f%9.3f%7.2f%7.2f%7.2f %s\n'
+    f.write(format % (*cell_lengths, *cell_angles, spacegroup))
+
+    # Write Atoms
+    format = ('ATOM  %5d %4s MOL     1    %8.3f%8.3f%8.3f%6.2f%6.2f          %2s  \n')
+    for atom in atoms:
+        f.write(format % (atom.index+1, atom.symbol.upper(), *atom.position, 1.0, 0.0, atom.symbol))
+
+    # Write Bonds
+    format = ('CONECT %5d %5d\n')
+    for bond in bonds:
+        f.write(format % (bond[0]+1, bond[1]+1))
+
+    f.write('END')
+
+    f.close()
