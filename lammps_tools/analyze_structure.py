@@ -17,7 +17,7 @@ def calculate_distance(p1, p2):
     return dist
 
 
-def create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, fractional_out=True, periodic='xyz', filename=None):
+def create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, fractional_out=False, periodic='xyz', filename=None):
 
     atoms_copy = copy.deepcopy(atoms)
     if fractional_in == False:
