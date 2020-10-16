@@ -49,7 +49,8 @@ def insert_molecule(mof, molecule, num_cells=[1,1,1], spacegroup='P1', mol_shift
     mol_id = np.append(mol_id, np.ones(len(mol_new)))
 
     # Create config and write to file if desired
-    final_config = mol_new + mof_new
+    final_config = mof_new + mol_new
+    final_config.translate(-mof_cop)
     if filename != None:
         ase.io.write(filename, final_config)
 
@@ -60,15 +61,15 @@ def create_new_unit_cell(atom_config, mol_ids, cell_lengths, cell_angles, num_ce
 
     cell_lengths = [a*b for a,b in zip(cell_lengths, num_cells)]
     cell_cop = get_center_of_cell(cell_lengths, cell_angles)
-    atom_config_cop = get_center_of_positions(atom_config)
     atom_config_new = copy.deepcopy(atom_config)
-    atom_config_new.translate(cell_cop-atom_config_cop)
+    atom_config_new.translate(cell_cop)
     convert_to_fractional(atom_config_new, cell_lengths, cell_angles, degrees=True)
 
     atoms_to_keep = []
     atoms_to_remove = []
-    all_xyz = atom_config_new.get_positions()
     mol_ids_new = []
+
+    all_xyz = atom_config_new.get_positions()
     for i in range(len(all_xyz)):
         pos = all_xyz[i]
         if np.min(pos) < 0 or np.max(pos) > 1:
