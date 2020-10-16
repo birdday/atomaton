@@ -166,11 +166,12 @@ def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, 
 
     # Bonds Section
     f.write('\nBonds\n')
-    f.write('# Bond: bond_id, atom1_id, atom2_id, bond_type\n')
+    f.write('# Bond: bond_id, bond_type, atom1_id, atom2_id\n')
     for i in range(len(unique_bonds)):
         bond = unique_bonds[i]
+        bond = [val+1 for val in bond]
         bond_type = '-'.join(str(val) for val in filtered_bond_types[i])
-        f.write('{} {} {} {} #{}\n'.format(i+1, *bond, bond_coeff[bond_type], bond_type))
+        f.write('{} {} {} {} #{}\n'.format(i+1, bond_coeff[bond_type], *bond, bond_type))
 
     # Angles Section
     f.write('\nAngles\n')
