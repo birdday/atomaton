@@ -9,7 +9,10 @@ from collections import OrderedDict
 from lammps.helper import (get_unique_items)
 
 
-def get_masses(atom_types):
+def get_masses():
+    from lammps_tools.forcefields.atoms import MASS
+
+    return MASS
 
 
 def get_pair_potential(atom_types):
@@ -143,6 +146,15 @@ def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, 
         improper_coeff[improper_type] = counter
         f.write('# {} {} \n'.format(counter, improper_type))
         counter += 1
+
+    # Masses Section
+    f.write('\nMasses\n')
+    f.write('# Mass Style: atom_id, mass\n')
+    masses = get_masses()
+    for i in range(len(unique_atom_types)):
+        atom_type = unique_atom_types[i]
+        mass = masses[atom_type]
+        f.write('{} {} #{}\n'.format(i+1, mass, atom_type))
 
     # Atoms Section
     # N.B. LAMMPS start indexing at 1
