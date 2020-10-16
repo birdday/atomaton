@@ -46,7 +46,7 @@ def test_ethane_atoms_properly_parsed():
 
 def test_ethane_bonds_properly_predicted():
     atoms = ase.io.read('tests/ethane.xyz')
-    bonds, bond_types, _, _ = guess_bonds(atoms, np.ones(len(atoms)), [20,20,20], [90,90,90], degrees=True, fractional_in=False, cutoff=1.6, periodic=None)
+    bonds, bond_types, _, _, _ = guess_bonds(atoms, np.ones(len(atoms)), [20,20,20], [90,90,90], degrees=True, fractional_in=False, cutoff=1.6, periodic=None)
     unique_bond_types, _ = get_unique_items(bond_types)
     expected_bonds = [[0, 1], [1, 2], [1, 3], [1, 4], [4, 5], [4, 6], [4, 7]]
     expected_bond_types = [['C', 'H'], ['C', 'H'], ['C', 'H'], ['C', 'C'], ['C', 'H'], ['C', 'H'], ['C', 'H']]
@@ -59,7 +59,7 @@ def test_ethane_bonds_properly_predicted():
 
 def test_ethane_bond_orders_correct():
     atoms = ase.io.read('tests/ethane.xyz')
-    bonds, bond_types, _, _ = guess_bonds(atoms, np.ones(len(atoms)), [20,20,20], [90,90,90], degrees=True, fractional_in=False, cutoff=1.6, periodic=None)
+    bonds, bond_types, _, _, _ = guess_bonds(atoms, np.ones(len(atoms)), [20,20,20], [90,90,90], degrees=True, fractional_in=False, cutoff=1.6, periodic=None)
     bond_count = get_number_of_bonds_on_atom(atoms, bonds)
     expected_bond_count = OrderedDict({'0': 1, '1': 4, '2': 1, '3': 1, '4': 4, '5': 1, '6': 1, '7': 1})
 
