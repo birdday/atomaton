@@ -6,7 +6,7 @@ import glob
 from collections import OrderedDict
 
 
-from lammps.helper import (get_unique_items)
+from lammps_tools.helper import (get_unique_items)
 
 
 def get_masses():
