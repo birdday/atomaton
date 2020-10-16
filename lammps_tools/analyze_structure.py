@@ -95,7 +95,7 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
     all_bond_types = []
     all_bond_lengths = []
     bonds_across_boundary = []
-    bonds_by_mol = {str(val): 0 for val in sorted(set(mol_ids))}
+    bonds_by_mol = {val: 0 for val in sorted(set(mol_ids))}
 
     for i in range(len(atoms_xyz)):
         p1, type1 = atoms_xyz[i], atom_types[i]
@@ -140,7 +140,7 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                             bonds_across_boundary.extend([bond])
 
 
-    return all_bonds, all_bond_types, all_bond_lengths, num_across_boundary, bonds_by_mol
+    return all_bonds, all_bond_types, all_bond_lengths, bonds_across_boundary, bonds_by_mol
 
 
 def guess_angles(atoms, bonds):
