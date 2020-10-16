@@ -61,6 +61,6 @@ def test_ethane_bond_orders_correct():
     atoms = ase.io.read('tests/ethane.xyz')
     bonds, bond_types, _, _ = guess_bonds(atoms, np.ones(len(atoms)), [20,20,20], [90,90,90], degrees=True, fractional_in=False, cutoff=1.6, periodic=None)
     bond_count = get_number_of_bonds_on_atom(atoms, bonds)
-    expected_bond_count = OrderedDict({'0': 1, '1': 3, '2': 1, '3': 3, '4': 3, '5': 1, '6': 1, '7': 1})
+    expected_bond_count = OrderedDict({'0': 1, '1': 4, '2': 1, '3': 1, '4': 4, '5': 1, '6': 1, '7': 1})
 
     assert bond_count == expected_bond_count
