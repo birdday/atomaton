@@ -9,6 +9,24 @@ from collections import OrderedDict
 from lammps.helper import (get_unique_items)
 
 
+def get_masses(atom_types):
+
+
+def get_pair_potential(atom_types):
+
+
+def get_bond_potential(bond_types):
+
+
+def get_angle_potential(angle_types):
+
+
+def get_dihedral_potential(dihedral_types):
+
+
+def get_improper_potential(improper_types):
+
+
 def get_lammps_box_parameters(cell_lengths, cell_angles, degrees=True):
     a, b, c = cell_lengths
     if degrees == True:
