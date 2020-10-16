@@ -68,7 +68,7 @@ def test_ethane_bond_orders_correct():
 
 def test_periodic_bonding():
     atoms = Atoms('CCCC', positions=[(0.1, 5, 5), (1.1, 5, 5), (2.1, 5, 5), (3.1, 5, 5)])
-    bonds, _, _, _ = guess_bonds(atoms, np.ones(len(atoms)), [4,10,10], [90,90,90], degrees=True, fractional_in=False, cutoff=1.5, periodic='xyz')
+    bonds, _, _, _, _ = guess_bonds(atoms, np.ones(len(atoms)), [4,10,10], [90,90,90], degrees=True, fractional_in=False, cutoff=1.5, periodic='xyz')
     bond_count = get_number_of_bonds_on_atom(atoms, bonds)
     expected_bonds = [[0, 1], [0, 3], [1, 2], [2, 3]]
     expected_bond_count = OrderedDict({'0': 2, '1': 2, '2': 2, '3': 2})
