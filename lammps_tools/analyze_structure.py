@@ -94,7 +94,8 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
     all_bonds = []
     all_bond_types = []
     all_bond_lengths = []
-    num_across_boundary = 0
+    bonds_across_boundary = []
+    bonds_by_mol = {str(val): 0 for val in sorted(set(mol_ids))}
 
     for i in range(len(atoms_xyz)):
         p1, type1 = atoms_xyz[i], atom_types[i]
@@ -113,8 +114,9 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                             all_bonds.extend([bond])
                             all_bond_types.extend([sorted([type1, type2])])
                             all_bond_lengths.extend([r])
+                            bonds_by_mol[mol_ids[i]] += 1
                             if j > len(atoms_xyz):
-                                num_across_boundary += 1
+                                bonds_across_boundary.extend([bond])
                 else:
                     if r <= cutoff['default'] and mol_ids[i] == mol_ids_ext[j]:
                         bond = sorted(set((i,pseudo_indicies[j])))
@@ -122,8 +124,9 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                             all_bonds.extend([bond])
                             all_bond_types.extend([sorted([type1, type2])])
                             all_bond_lengths.extend([r])
+                            bonds_by_mol[mol_ids[i]] += 1
                             if j > len(atoms_xyz):
-                                num_across_boundary += 1
+                                bonds_across_boundary.extend([bond])
 
             else:
                 if r <= cutoff and mol_ids[i] == mol_ids_ext[j]:
@@ -132,11 +135,12 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                         all_bonds.extend([bond])
                         all_bond_types.extend([sorted([type1, type2])])
                         all_bond_lengths.extend([r])
+                        bonds_by_mol[mol_ids[i]] += 1
                         if j > len(atoms_xyz):
-                            num_across_boundary += 1
+                            bonds_across_boundary.extend([bond])
 
 
-    return all_bonds, all_bond_types, all_bond_lengths, num_across_boundary
+    return all_bonds, all_bond_types, all_bond_lengths, num_across_boundary, bonds_by_mol
 
 
 def guess_angles(atoms, bonds):
