@@ -225,10 +225,83 @@ def guess_dihedrals_and_impropers(atoms, bonds, angles, improper_tol=0.1):
     return all_dihedrals, all_dihedral_types, all_impropers, all_improper_types
 
 
-def get_number_of_bonds_on_atom(atoms, bonds):
+def get_bonds_on_atom(atoms, bonds):
     bond_count = {str(i): 0 for i in range(len(atoms))}
+    bonds_present = {str(i): [] for i in range(len(atoms))}
+    bonds_with = {str(i): [] for i in range(len(atoms))}
     for bond in bonds:
         for index in bond:
             bond_count[str(index)] += 1
+            bonds_present[str(index)].extend([bond])
+            bonds_with[str(index)].extend([atoms[ai].symbol for ai in bond if ai != index])
 
-    return OrderedDict(bond_count)
+    return OrderedDict(bond_count), OrderedDict(bonds_present), OrderedDict(bonds_with)
+
+
+def assign_forcefield_atom_types(atoms, bonds_with):
+    uff_symbols = []
+    for atom in atoms:
+        num_bonds_on_atom = len(bonds_with[str(atom.index)])
+        if atom.symbol == 'H':
+            if num_bonds_on_atom == 1:
+                type='H_'
+            if num_bonds_on_atom == 2:
+                type='H_b'
+            else:
+                type='H_'
+
+        if atom.symbol == 'C':
+            if num_bonds_on_atom == 1:
+                type='C_1'
+            if num_bonds_on_atom == 2:
+                type='C_2'
+            if num_bonds_on_atom == 3:
+                if set(bonds_with[str(atom.index)]) == {'C'}:
+                    type='C_R'
+                else:
+                    type='C_3'
+            else:
+                type='C_3'
+
+        if atom.symbol == 'O':
+            if num_bonds_on_atom == 1:
+                type='O_1'
+            if num_bonds_on_atom == 2:
+                type='O_3'
+            if num_bonds_on_atom == 3:
+                type='O_2'
+            else:
+                type='O_3'
+
+        if atom.symbol == 'Ar':
+            type = 'Ar4+4'
+
+        if atom.symbol == 'Ni':
+            type = 'Ni4+2'
+
+        uff_symbols.extend([type])
+
+    return uff_symbols
+
+
+def update_bond_or_dihedral_types(all_bonds, ff_atom_types):
+    bond_types = [[ff_atom_types[index] for index in bond] for bond in all_bonds]
+    return bond_types
+
+
+def update_angle_or_improper_types(all_angles, ff_atom_types):
+    angle_types = [[ff_atom_types[index] for index in angle[-1]] for angle in all_angles]
+    return angle_types
+
+
+def sort_bond_angle_dihedral_type_list(all_types):
+    if len(all_types[0]) == 2:
+        for i in range(len(all_types)):
+            all_types[i] = sorted(all_types[i])
+
+    else:
+        for i in range(len(all_types)):
+            if [all_types[i][0], all_types[i][-1]] != sorted([all_types[i][0], all_types[i][-1]]):
+                all_types[i] = all_types[i][::-1]
+
+    return all_types
