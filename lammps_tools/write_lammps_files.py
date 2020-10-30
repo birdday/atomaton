@@ -15,19 +15,19 @@ def get_masses():
     return MASS
 
 
-def get_pair_potential(atom_types):
-
-
-def get_bond_potential(bond_types):
-
-
-def get_angle_potential(angle_types):
-
-
-def get_dihedral_potential(dihedral_types):
-
-
-def get_improper_potential(improper_types):
+# def get_pair_potential(atom_types):
+#
+#
+# def get_bond_potential(bond_types):
+#
+#
+# def get_angle_potential(angle_types):
+#
+#
+# def get_dihedral_potential(dihedral_types):
+#
+#
+# def get_improper_potential(improper_types):
 
 
 def get_lammps_box_parameters(cell_lengths, cell_angles, degrees=True):
@@ -58,27 +58,16 @@ def write_lammps_input_file(filename):
                 fdata.write('fix {} {} setforce 0.0 0.0 0.0\n'.format(id, group_id))
 
 
-def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, all_bonds, all_bond_types, all_angles, all_angle_types, all_dihedrals, all_dihedral_types, all_impropers, all_improper_types, degrees=True):
+def write_lammps_data_file(filename, atoms, ff_atom_types, mol_ids, cell_lengths, cell_angles, all_bonds, all_bond_types, all_angles, all_angle_types, all_dihedrals, all_dihedral_types, all_impropers, all_improper_types, degrees=True):
+
     f = open(filename, 'w')
 
     xhi, yhi, zhi, xy, xz, yz = get_lammps_box_parameters(cell_lengths, cell_angles, degrees=degrees)
+    unique_atom_types, _ = get_unique_items(ff_atom_types)
 
-    unique_atom_types, _ = get_unique_items(atoms.get_chemical_symbols())
-
-    unique_bonds, bi = get_unique_items(all_bonds)
-    filtered_bond_types = [all_bond_types[i] for i in bi]
     unique_bond_types, _ = get_unique_items(all_bond_types)
-
-    unique_angles, ai = get_unique_items(all_angles)
-    filtered_angle_types = [all_angle_types[i] for i in ai]
     unique_angle_types, _ = get_unique_items(all_angle_types)
-
-    unique_dihedrals, di = get_unique_items(all_dihedrals)
-    filtered_dihedral_types = [all_dihedral_types[i] for i in di]
     unique_dihedral_types, _ = get_unique_items(all_dihedral_types)
-
-    unique_impropers, ii = get_unique_items(all_impropers)
-    filtered_improper_types = [all_improper_types[i] for i in ii]
     unique_improper_types, _ = get_unique_items(all_improper_types)
 
     # Comment Line
@@ -115,7 +104,7 @@ def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, 
     bond_coeff = {}
     counter = 1
     for bond_type in unique_bond_types:
-        bond_type = '-'.join(str(val) for val in bond_type)
+        bond_type = ' '.join(str(val) for val in bond_type)
         bond_coeff[bond_type] = counter
         f.write('# {} {} \n'.format(counter, bond_type))
         counter += 1
@@ -124,7 +113,7 @@ def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, 
     angle_coeff = {}
     counter = 1
     for angle_type in unique_angle_types:
-        angle_type = '-'.join(str(val) for val in angle_type)
+        angle_type = ' '.join(str(val) for val in angle_type)
         angle_coeff[angle_type] = counter
         f.write('# {} {} \n'.format(counter, angle_type))
         counter += 1
@@ -133,7 +122,7 @@ def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, 
     dihedral_coeff = {}
     counter = 1
     for dihedral_type in unique_dihedral_types:
-        dihedral_type = '-'.join(str(val) for val in dihedral_type)
+        dihedral_type = ' '.join(str(val) for val in dihedral_type)
         dihedral_coeff[dihedral_type] = counter
         f.write('# {} {} \n'.format(counter, dihedral_type))
         counter += 1
@@ -142,7 +131,7 @@ def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, 
     improper_coeff = {}
     counter = 1
     for improper_type in unique_improper_types:
-        improper_type = '-'.join(str(val) for val in improper_type)
+        improper_type = ' '.join(str(val) for val in improper_type)
         improper_coeff[improper_type] = counter
         f.write('# {} {} \n'.format(counter, improper_type))
         counter += 1
@@ -153,7 +142,10 @@ def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, 
     masses = get_masses()
     for i in range(len(unique_atom_types)):
         atom_type = unique_atom_types[i]
-        mass = masses[atom_type]
+        atom_type_for_mass = atom_type[0:2]
+        if atom_type_for_mass[1] == '_':
+            atom_type_for_mass = atom_type_for_mass[0]
+        mass = masses[atom_type_for_mass]
         f.write('{} {} #{}\n'.format(i+1, mass, atom_type))
 
     # Atoms Section
@@ -162,39 +154,43 @@ def write_lammps_data_file(filename, atoms, mol_ids, cell_lengths, cell_angles, 
     f.write('# Atom Style = Full: atom_id, mol_id, atom_type, charge, x, y, z\n')
     for i in range(len(atoms)):
         atom = atoms[i]
-        f.write('{} {} {} {} {} {} {} #{}\n'.format(atom.index+1, int(mol_ids[i]+1), pair_coeff[atom.symbol], 0.0, *np.round(atom.position,6), atom.symbol))
+        atom_symbol = ff_atom_types[i]
+        f.write('{} {} {} {} {} {} {} #{}\n'.format(atom.index+1, int(mol_ids[i]+1), pair_coeff[atom_symbol], 0.0, *np.round(atom.position,6), atom_symbol))
 
     # Bonds Section
     f.write('\nBonds\n')
     f.write('# Bond: bond_id, bond_type, atom1_id, atom2_id\n')
-    for i in range(len(unique_bonds)):
-        bond = unique_bonds[i]
+    for i in range(len(all_bonds)):
+        bond = all_bonds[i]
         bond = [val+1 for val in bond]
-        bond_type = '-'.join(str(val) for val in filtered_bond_types[i])
+        bond_type = ' '.join(str(val) for val in all_bond_types[i])
         f.write('{} {} {} {} #{}\n'.format(i+1, bond_coeff[bond_type], *bond, bond_type))
 
     # Angles Section
     f.write('\nAngles\n')
     f.write('# Angle: angle_id, atom1_id, atom2_id, atom3_id, angle_type - Order may matter here, check this!!!\n')
-    for i in range(len(unique_angles)):
-        angle = unique_angles[i][1]
-        angle_type = '-'.join(str(val) for val in filtered_angle_types[i])
-        f.write('{} {} {} {} {} #{}\n'.format(i+1, *angle, angle_coeff[angle_type], angle_type))
+    for i in range(len(all_angles)):
+        angle = all_angles[i][1]
+        angle = [val+1 for val in angle]
+        angle_type = ' '.join(str(val) for val in all_angle_types[i])
+        f.write('{} {} {} {} {} #{}\n'.format(i+1, angle_coeff[angle_type], *angle, angle_type))
 
     # Dihedrals Section
     f.write('\nDihedrals\n')
     f.write('# Dihedrals: dihedral_id, atom1_id, atom2_id, atom3_id, atom4_id, dihedral_type - Order may matter here, check this!!!\n')
-    for i in range(len(unique_dihedrals)):
-        dihedral = unique_dihedrals[i]
-        dihedral_type = '-'.join(str(val) for val in filtered_dihedral_types[i])
-        f.write('{} {} {} {} {} {} #{}\n'.format(i+1, *dihedral, dihedral_coeff[dihedral_type], dihedral_type))
+    for i in range(len(all_dihedrals)):
+        dihedral = all_dihedrals[i]
+        dihedral = [val+1 for val in dihedral]
+        dihedral_type = ' '.join(str(val) for val in all_dihedral_types[i])
+        f.write('{} {} {} {} {} {} #{}\n'.format(i+1, dihedral_coeff[dihedral_type], *dihedral, dihedral_type))
 
     # Impropers Section
     f.write('\nImpropers\n')
     f.write('# Impropers: improper_id, atom1_id, atom2_id, atom3_id, atom4_id, improper_type  - Order may matter here, check this!!!\n')
-    for i in range(len(unique_impropers)):
-        improper = unique_impropers[i][1]
-        improper_type = '-'.join(str(val) for val in filtered_improper_types[i])
-        f.write('{} {} {} {} {} {} #{}\n'.format(i+1, *improper, improper_coeff[improper_type], improper_type))
+    for i in range(len(all_impropers)):
+        improper = all_impropers[i][1]
+        improper = [val+1 for val in improper]
+        improper_type = ' '.join(str(val) for val in all_improper_types[i])
+        f.write('{} {} {} {} {} {} #{}\n'.format(i+1, improper_coeff[improper_type], *improper, improper_type))
 
     f.close()
