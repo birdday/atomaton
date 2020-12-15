@@ -15,13 +15,15 @@ from lammps_tools.helper import (
 
 
 def insert_molecule(mof, molecule, num_cells=[1,1,1], spacegroup='P1', mol_shift=[0,0,0], filename=None):
+    # Clearly not working as intended (see mof/cnt figure) - fix this!!
+    # Behavior is related to n_layers replacing a co value.
 
     # Load MOF and Molecule files, if needed
     if type(mof) ==  'str':
         mof = ase.io.read(mof)
     if type(molecule) == 'str':
         molecule = ase.io.read(molecule_file)
-    if type(mof) != ase.atoms.Atoms and type(mol) != ase.atoms.Atoms:
+    if type(mof) != ase.atoms.Atoms and type(molecule) != ase.atoms.Atoms:
         return('Invalid structures!')
 
     # Load MOF parameters, and convert to ASE crystal
