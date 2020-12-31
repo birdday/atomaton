@@ -199,12 +199,17 @@ def guess_dihedrals_and_impropers(atoms_in, bonds, angles, improper_tol=0.1):
             shared_atom = sorted(set(angle).intersection(bond))
 
             if len(atoms_in_group) == 4 and shared_atom != [center_atom]:
-                all_dihedrals.extend([atoms_in_group])
+                # all_dihedrals.extend([atoms_in_group])
 
                 ordered_atoms = list(set(angle).difference([center_atom]).difference(shared_atom))
                 ordered_atoms.insert(1, center_atom)
                 ordered_atoms.insert(2, *shared_atom)
                 ordered_atoms.insert(3, *list(set(bond).difference(shared_atom)))
+
+                if ordered_atoms[0] > ordered_atoms[-1]:
+                    ordered_atoms.reverse()
+                all_dihedrals.extend([ordered_atoms])
+
                 ordered_atom_types = [atoms[index].symbol for index in ordered_atoms]
                 all_dihedral_types.extend([ordered_atom_types])
 
@@ -221,7 +226,7 @@ def guess_dihedrals_and_impropers(atoms_in, bonds, angles, improper_tol=0.1):
                 v02 = atoms[ordered_atoms[2]].position = atoms[ordered_atoms[0]].position
                 a,b,c = np.cross(v01, v02)
                 d = -1*(a*p0[0] + b*p0[1] + c*p0[2])
-                num, den = a*pc[0]+b*pc[1]+c*pc[2]-d, (a**2 + b**2 +c**2)**0.5
+                num, den = a*pc[0]+b*pc[1]+c*pc[2]+d, (a**2 + b**2 +c**2)**0.5
                 if den != 0:
                     dmin = abs(num/den)
                 else:
