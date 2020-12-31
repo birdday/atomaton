@@ -11,6 +11,7 @@ from lammps_tools.helper import (
     )
 
 plotting_parameters = {
+    'No' : {'cov_radius':0.0 , 'resolution':20, 'color':(1.00000, 1.00000, 1.00000), 'scale_mode':'none'},
     'H'  : {'cov_radius':3.1 , 'resolution':20, 'color':(1.00000, 1.00000, 1.00000), 'scale_mode':'none'},
     'C'  : {'cov_radius':7.3 , 'resolution':20, 'color':(0.56500, 0.56500, 0.56500), 'scale_mode':'none'},
     'N'  : {'cov_radius':7.1 , 'resolution':20, 'color':(0.18800, 0.31400, 0.97300), 'scale_mode':'none'},
@@ -30,7 +31,7 @@ def draw_atoms(atom_config_new, cell_lengths, cell_angles, fractional_in=True, s
     if fractional_in == True:
         atom_positions = convert_to_cartesian(atom_config_new, cell_lengths, cell_angles, degrees=True).get_positions().transpose()
     else:
-        atom_positions = atom_config_new.get_positions.transpose()
+        atom_positions = atom_config_new.get_positions().transpose()
 
     for key in unique_symbols:
         values = unique_symbols[key]
@@ -52,6 +53,35 @@ def draw_bonds(atom_config_new, cell_lengths, cell_angles, all_bonds, all_bonds_
     connections = list(tuple(bond) for bond in all_bonds if bond not in all_bonds_across_boundary)
     all_pts = mlab.points3d(x, y, z, resolution=8, scale_factor=0)
     all_pts.mlab_source.dataset.lines = np.array(connections)
+    tube = mlab.pipeline.tube(all_pts, tube_radius=0.15)
+    mlab.pipeline.surface(tube, color=(0.4, 0.4, 0.4))
+
+def draw_bonds_across_boundary(atom_config_new, cell_lengths, cell_angles, all_bonds, all_bonds_across_boundary, fractional_in=True, degrees=True):
+
+    # incorrect math
+    if fractional_in == True:
+        atom_positions = convert_to_cartesian(atom_config_new, cell_lengths, cell_angles, degrees=True).get_positions()
+    else:
+        atom_positions = atom_config_new.get_positions()
+    x,y,z = atom_positions.transpose()
+
+    all_pts = []
+    all_connections = []
+    p1, p2 = 0, 1
+    for i, j in all_bonds_across_boundary:
+        v = atom_positions[i]-atom_positions[j]
+        mag = (v**2).sum()**0.5
+        vhat = v/mag
+        all_pts.extend([atom_positions[i],atom_positions[i]-10*vhat])
+        all_pts.extend([atom_positions[j],atom_positions[j]+10*vhat])
+        all_connections.extend([(p1, p2), (p1+2, p2+2)])
+        p1 += 4
+        p2 += 4
+
+    print(all_pts)
+    print(all_connections)
+    all_pts = mlab.points3d(x, y, z, resolution=8, scale_factor=0)
+    all_pts.mlab_source.dataset.lines = np.array(all_connections)
     tube = mlab.pipeline.tube(all_pts, tube_radius=0.15)
     mlab.pipeline.surface(tube, color=(0.4, 0.4, 0.4))
 
@@ -77,11 +107,12 @@ def draw_unit_cell(cell_lengths, cell_angles, degrees=True):
 
 def view_structure(atoms, bonds, bonds_across_boundary, cell_lengths, cell_angles, fractional_in=True, degrees=True, show_unit_cell=True):
 
-    mlab.figure(1, bgcolor=(1,1,1), size=(350,350))
+    mlab.figure(1, bgcolor=(0,0,0), size=(350,350))
     mlab.clf()
 
-    draw_atoms(atoms, cell_lengths, cell_angles, fractional_in=True, sf=0.125)
+    draw_atoms(atoms, cell_lengths, cell_angles, fractional_in=fractional_in, sf=0.125)
     draw_bonds(atoms, cell_lengths, cell_angles, bonds, bonds_across_boundary, fractional_in=False, degrees=True)
+    # draw_bonds_across_boundary(atoms, cell_lengths, cell_angles, bonds, bonds_across_boundary, fractional_in=True, degrees=True)
 
     if show_unit_cell == True:
         draw_unit_cell(cell_lengths, cell_angles, degrees=True)

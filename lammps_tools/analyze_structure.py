@@ -96,6 +96,8 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
     all_bond_lengths = []
     bonds_across_boundary = []
     bonds_by_mol = {val: 0 for val in sorted(set(mol_ids))}
+    extra_atoms_for_plot = []
+    extra_bonds_for_plot = []
 
     for i in range(len(atoms_xyz)):
         p1, type1 = atoms_xyz[i], atom_types[i]
@@ -117,6 +119,9 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                             bonds_by_mol[mol_ids[i]] += 1
                             if j > len(atoms_xyz):
                                 bonds_across_boundary.extend([bond])
+                        if j > len(atoms_xyz):
+                            extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
+                            extra_atoms_for_plot.extend([atoms_ext_xyz[j]])
                 else:
                     if r <= cutoff['default'] and mol_ids[i] == mol_ids_ext[j]:
                         bond = sorted(set((i,pseudo_indicies[j])))
@@ -127,6 +132,9 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                             bonds_by_mol[mol_ids[i]] += 1
                             if j > len(atoms_xyz):
                                 bonds_across_boundary.extend([bond])
+                        if j > len(atoms_xyz):
+                            extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
+                            extra_atoms_for_plot.extend([atoms_ext_xyz[j]])
 
             else:
                 if r <= cutoff and mol_ids[i] == mol_ids_ext[j]:
@@ -138,9 +146,12 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                         bonds_by_mol[mol_ids[i]] += 1
                         if j > len(atoms_xyz):
                             bonds_across_boundary.extend([bond])
+                    if j > len(atoms_xyz):
+                        extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
+                        extra_atoms_for_plot.extend([atoms_ext_xyz[j]])
 
 
-    return all_bonds, all_bond_types, all_bond_lengths, bonds_across_boundary, bonds_by_mol
+    return all_bonds, all_bond_types, all_bond_lengths, bonds_across_boundary, bonds_by_mol, extra_atoms_for_plot, extra_bonds_for_plot
 
 
 def guess_angles(atoms, bonds):
