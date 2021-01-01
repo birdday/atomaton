@@ -10,24 +10,9 @@ from lammps_tools.helper import (get_unique_items)
 
 
 def get_masses():
-    from lammps_tools.forcefields.atoms import MASS
+    from forcefields.atoms import MASS
 
     return MASS
-
-
-# def get_pair_potential(atom_types):
-#
-#
-# def get_bond_potential(bond_types):
-#
-#
-# def get_angle_potential(angle_types):
-#
-#
-# def get_dihedral_potential(dihedral_types):
-#
-#
-# def get_improper_potential(improper_types):
 
 
 def get_lammps_box_parameters(cell_lengths, cell_angles, degrees=True):

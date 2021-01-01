@@ -86,3 +86,18 @@ def search_for_aromatic_carbons(atoms, all_dihedrals, uff_symbols, ring_tol=0.1)
                         uff_symbols[index] = 'C_R'
 
     return uff_symbols
+
+
+# def get_pair_potential(atom_types):
+#
+#
+# def get_bond_potential(bond_types):
+#
+#
+# def get_angle_potential(angle_types):
+#
+#
+# def get_dihedral_potential(dihedral_types):
+#
+#
+# def get_improper_potential(improper_types):
