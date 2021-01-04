@@ -174,7 +174,7 @@ def guess_angles(atoms, bonds):
                 ordered_atom_types_in_angle = [atoms[index].symbol for index in end_atoms]
                 ordered_atom_types_in_angle.insert(1, *[atoms[index].symbol for index in center_atom])
 
-                all_angles.extend([[*center_atom, atoms_in_angle]])
+                all_angles.extend([[*center_atom, ordered_atoms_in_angle]])
                 all_angle_types.extend([ordered_atom_types_in_angle])
 
     all_angles = sorted(all_angles)
