@@ -10,7 +10,7 @@ from lammps_tools.helper import (get_unique_items)
 
 
 def get_masses():
-    from forcefields.atoms import MASS
+    from lammps_tools.forcefields.atoms import MASS
 
     return MASS
 
