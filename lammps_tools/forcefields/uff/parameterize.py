@@ -20,23 +20,21 @@ def assign_forcefield_atom_types(atoms, bonds_with):
                 type='H_'
 
         if atom.symbol == 'C':
-            if num_bonds_on_atom == 1:
-                type='C_1'
+            # Note aromatic carbons are testing for separately and will overwrite anything assigned here.
             if num_bonds_on_atom == 2:
-                type='C_2'
+                type='C_1'
             if num_bonds_on_atom == 3:
-                # Check whether this should be C_3 or C_2
+                type='C_2'
+            if num_bonds_on_atom == 4:
                 type='C_3'
             else:
                 type='C_3'
 
         if atom.symbol == 'O':
             if num_bonds_on_atom == 1:
-                type='O_1'
+                type='O_2'
             if num_bonds_on_atom == 2:
                 type='O_3'
-            if num_bonds_on_atom == 3:
-                type='O_2'
             else:
                 type='O_3'
 
