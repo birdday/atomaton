@@ -99,6 +99,23 @@ def search_for_aromatic_carbons(atoms, all_dihedrals, uff_symbols, ring_tol=0.1)
 # def get_angle_potential(angle_types):
 #
 #
+def load_atom_type_parameters(return_as_dict=True):
+    # from lammps_tools.forcefields.uff.parameters.uff import UFF_DATA
+    from parameters.uff import UFF_DATA
+
+    if return_as_dict == True:
+        header = ['r1', 'theta0', 'x1', 'D1', 'zeta', 'Z1', 'Vi', 'Uj', 'Xi', 'Hard', 'Radius']
+        UFF_DATA_as_dict = {}
+        for key in UFF_DATA:
+            UFF_DATA_as_dict[key] = {}
+            for i in range(len(UFF_DATA[key])):
+                val = UFF_DATA[key][i]
+                key2 = header[i]
+                UFF_DATA_as_dict[key][key2] = val
+
+        UFF_DATA = UFF_DATA_as_dict
+
+    return UFF_DATA
 # def get_dihedral_potential(dihedral_types):
 #
 #
