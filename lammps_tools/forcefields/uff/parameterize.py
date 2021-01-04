@@ -90,9 +90,6 @@ def search_for_aromatic_carbons(atoms, all_dihedrals, uff_symbols, ring_tol=0.1)
     return uff_symbols
 
 
-# def get_pair_potential(atom_types):
-#
-#
 # def get_bond_potential(bond_types):
 #
 #
@@ -116,6 +113,23 @@ def load_atom_type_parameters(return_as_dict=True):
         UFF_DATA = UFF_DATA_as_dict
 
     return UFF_DATA
+
+
+def get_pair_potential(atom_types):
+    """
+    This is simply the non-bonded van Der Waals potential, modelled by Lennard-Jones parameters for the atom types. Typcially, we just specify the I,I pair coefficients and I,J pair coefficients are determined by the mixing rules. I,J pair coefficients can be explicitly listed to overwrite the mixing rules, however.
+    A 6-12 Lennard-Jones potential of the following form is used:
+        E_vdw = D_ij*(-2*(x_ij/x)**6+(x_ij/x)**12)
+    N.B. CHECK HOW THIS IS IMPLEMENTED IN LAMMPS
+    """
+
+    atom_type_params = {}
+    for atom_type in atom_types:
+        lj_sigma = UFF_DATA[atom_type]['x1'] * (2**(-1./6.))
+        lj_epsilon = UFF_DATA[atom_type]['D1']
+        atom_type_params[atom_type] = [lj_epsilon, lj_sigma]
+
+    return atom_type_params
 # def get_dihedral_potential(dihedral_types):
 #
 #
