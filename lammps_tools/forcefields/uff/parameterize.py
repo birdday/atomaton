@@ -2,6 +2,10 @@ import ase as ase
 from ase import Atoms, io, spacegroup, build, visualize
 import numpy as np
 
+"""
+UFF Forcefield as published has some errors which are outlined here: http://towhee.sourceforge.net/forcefields/uff.html.
+Text from webpage is also copied to 'uff_corrections.txt' for future reference.
+"""
 
 def assign_forcefield_atom_types(atoms, bonds_with):
     uff_symbols = []
