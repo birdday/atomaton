@@ -90,9 +90,6 @@ def search_for_aromatic_carbons(atoms, all_dihedrals, uff_symbols, ring_tol=0.1)
     return uff_symbols
 
 
-# def get_bond_potential(bond_types):
-#
-#
 # def get_angle_potential(angle_types):
 #
 #
@@ -130,6 +127,76 @@ def get_pair_potential(atom_types):
         atom_type_params[atom_type] = [lj_epsilon, lj_sigma]
 
     return atom_type_params
+
+
+def guess_bond_orders(bond_types):
+    # There are highly sophisticated and complicated schemes for guessing bond order. In theory, bond order could be determined independently of the atom type, but for many cases can be more easily assigned after the fact. At some point consider implementing the more generic, sophisticated bond ordering scheme. This method is 'hacky' at best.
+    # This bond order scheme is roughly the same as what is used in Pete Boyd's 'lammps-interface'.
+    bond_order_dict = {}
+    for bond_type in bond_types:
+        key = bond_type[0]+'-'+bond_type[1]
+        if len(set(['H_', 'F_', 'Cl', 'Br', 'I_']).intersection(set(bond_type))) != 0:
+            bond_order_dict[key] = 1
+        elif len(set(['C_3', 'N_3', 'O_3']).intersection(set(bond_type))) != 0:
+            bond_order_dict[key] = 1
+        elif len(set(bond_type)) == 1 and set(bond_type).issubset(set(['C_2', 'N_2', 'O_2'])):
+            bond_order_dict[key] = 2
+        elif len(set(bond_type)) == 1 and set(bond_type).issubset(set(['C_R', 'N_R', 'O_R'])):
+            bond_order_dict[key] = 1.5
+        else:
+            print(bond_type, ':Bond order not properly assigned. Using default value of 1.')
+            bond_order_dict[key] = 1
+
+    return bond_order_dict
+
+
+def get_bond_potential(bond_types, form='harmonic'):
+    """
+    Standard Natural Bond Length, r_ij
+      r_ij = r_i + r_j +r_BO - r_EN
+        r_i, r_j = atom-type-specific single bond radius
+        r_BO = Bond Order Correction - Value of n is non-obvious.
+        r_EN = Electronegativity Correction
+      N.B. Original paper says '+r_EN'. This is a mistake.
+    Force Constant K_ij
+    """
+
+    # 1. Calculate r_ij and K_ij
+    bond_orders = guess_bond_orders(bond_types)
+    bond_type_params = {}
+    for bond_type in bond_types:
+        atom_i = bond_type[0]
+        atom_j = bond_type[1]
+
+        r_i = UFF_DATA[atom_i]['r1']
+        r_j = UFF_DATA[atom_j]['r1']
+        x_i = UFF_DATA[atom_i]['Xi']
+        x_j = UFF_DATA[atom_j]['Xi']
+        z_i = UFF_DATA[atom_i]['Z1']
+        z_j = UFF_DATA[atom_j]['Z1']
+
+        # 'n' determined by hacky bond order approximation.
+        n = bond_orders[atom_i+'-'+atom_j]
+        r_BO = -0.1332*(r_i+r_j)*np.log(n)
+        r_EN = (r_i*r_j*(x_i**0.5-x_j**0.5)**2) / (x_i*r_i + x_j*r_j)
+        r_ij = r_i + r_j +r_BO - r_EN
+
+        g = 332.06
+        k_ij = g*z_i*z_j/(r_ij**3)
+
+        key = atom_i+'-'+atom_j
+        bond_type_params[key] = [k_ij, r_ij]
+
+        # print(bond_type, k_ij, r_ij)
+
+    # Harmonic Oscillator = f(r_ij, K_ij)
+    if form == 'harmonic':
+        return bond_type_params
+
+    # Morse Function = f(r_ij, K_ij, D_ij)
+    # Requires additional parameter, Bond Dissociation Energy, D_ij.
+    elif form == 'morse':
+        return bond_type_params
 # def get_dihedral_potential(dihedral_types):
 #
 #
