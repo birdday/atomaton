@@ -78,80 +78,57 @@ def create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True
     return atoms_extended, mol_ids_extended, pseudo_indicies
 
 
-def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, cutoff=1.5, periodic='xyz'):
+def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, cutoff={'default': 1.5}, periodic='xyz'):
 
+    # Prepare Atoms Object
     atoms = copy.deepcopy(atoms_in)
-
     if fractional_in == True:
         atoms = convert_to_cartesian(atoms, cell_lengths, cell_angles, degrees=True)
-    atoms_xyz = atoms.get_positions()
-    atom_types = atoms.get_chemical_symbols()
-
+    atoms_out = copy.deepcopy(atoms)
     atoms_ext, mol_ids_ext, pseudo_indicies = create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, fractional_out=False, periodic=periodic)
-    atoms_ext_xyz = atoms_ext.get_positions()
-    atoms_ext_types = atoms_ext.get_chemical_symbols()
+
+    # Check Cutoff Dictionary
+    if 'default' not in cutoff.keys():
+        cutoff['default'] = 1.5
 
     all_bonds = []
+    all_bonds_alt = []
     all_bond_types = []
-    all_bond_lengths = []
+
     bonds_across_boundary = []
-    bonds_by_mol = {val: 0 for val in sorted(set(mol_ids))}
-    extra_atoms_for_plot = []
+    bonds_across_boundary_count = 0
+
+    extra_atoms_for_plot = Atoms()
     extra_bonds_for_plot = []
 
-    for i in range(len(atoms_xyz)):
-        p1, type1 = atoms_xyz[i], atom_types[i]
+    for i in range(len(atoms)):
+        p1 = atoms[i].position
+        type1 = atoms[i].symbol
 
         for j in range(i+1,len(atoms_ext)):
-            p2, type2 = atoms_ext_xyz[j], atoms_ext_types[j]
+            p2 = atoms_ext[j].position
+            type2 = atoms_ext[j].symbol
 
             r = calculate_distance(p1,p2)
             bondtype = '-'.join(sorted([type1, type2]))
 
-            if type(cutoff) == dict:
-                if bondtype in cutoff.keys():
-                    if r <= cutoff[bondtype] and mol_ids[i] == mol_ids_ext[j]:
-                        bond = sorted(set((i,pseudo_indicies[j])))
-                        if bond not in all_bonds:
-                            all_bonds.extend([bond])
-                            all_bond_types.extend([sorted([type1, type2])])
-                            all_bond_lengths.extend([r])
-                            bonds_by_mol[mol_ids[i]] += 1
-                            if j > len(atoms_xyz):
-                                bonds_across_boundary.extend([bond])
-                        if j > len(atoms_xyz):
-                            extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
-                            extra_atoms_for_plot.extend([atoms_ext_xyz[j]])
-                else:
-                    if r <= cutoff['default'] and mol_ids[i] == mol_ids_ext[j]:
-                        bond = sorted(set((i,pseudo_indicies[j])))
-                        if bond not in all_bonds:
-                            all_bonds.extend([bond])
-                            all_bond_types.extend([sorted([type1, type2])])
-                            all_bond_lengths.extend([r])
-                            bonds_by_mol[mol_ids[i]] += 1
-                            if j > len(atoms_xyz):
-                                bonds_across_boundary.extend([bond])
-                        if j > len(atoms_xyz):
-                            extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
-                            extra_atoms_for_plot.extend([atoms_ext_xyz[j]])
+            if ((bondtype in cutoff.keys() and r <= cutoff[bondtype]) or r <= cutoff['default']) and mol_ids[i] == mol_ids_ext[j]:
+                bond = sorted(set((i,pseudo_indicies[j])))
+                bond_alt = bond
+                if bond not in all_bonds:
+                    all_bonds.extend([bond])
+                    all_bond_types.extend([sorted([type1, type2])])
+                    if j > len(atoms):
+                        bond_alt = sorted(set((i,len(atoms)+bonds_across_boundary_count)))
+                        bonds_across_boundary.extend([bond])
+                        bonds_across_boundary_count += 1
+                        atoms_out += atoms_ext[j]
+                    all_bonds_alt.extend([bond_alt])
+                if j > len(atoms):
+                    extra_atoms_for_plot += atoms_ext[j]
+                    extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
 
-            else:
-                if r <= cutoff and mol_ids[i] == mol_ids_ext[j]:
-                    bond = sorted(set((i,pseudo_indicies[j])))
-                    if bond not in all_bonds:
-                        all_bonds.extend([bond])
-                        all_bond_types.extend([sorted([type1, type2])])
-                        all_bond_lengths.extend([r])
-                        bonds_by_mol[mol_ids[i]] += 1
-                        if j > len(atoms_xyz):
-                            bonds_across_boundary.extend([bond])
-                    if j > len(atoms_xyz):
-                        extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
-                        extra_atoms_for_plot.extend([atoms_ext_xyz[j]])
-
-
-    return all_bonds, all_bond_types, all_bond_lengths, bonds_across_boundary, bonds_by_mol, extra_atoms_for_plot, extra_bonds_for_plot
+    return atoms_out, all_bonds, all_bonds_alt, all_bond_types, bonds_across_boundary, extra_atoms_for_plot, extra_bonds_for_plot
 
 
 def guess_angles(atoms, bonds):
