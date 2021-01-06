@@ -8,6 +8,10 @@ def mod(a,b):
     return remainder
 
 
+def column(matrix, i):
+    return [row[i] for row in matrix]
+
+
 def get_unique_items(items):
     unique_items = []
     unique_indicies = []
@@ -101,3 +105,12 @@ def write_pdb_with_bonds(filename, atoms, bonds, cell_lengths, cell_angles, spac
     f.write('END')
 
     f.close()
+
+
+def atom_in_atoms(atom, atoms):
+    for i in range(len(atoms)):
+        other_atom = atoms[i]
+        if atom.symbol==other_atom.symbol and np.all(atom.position==other_atom.position):
+            return True, other_atom
+        else:
+            return False, atom

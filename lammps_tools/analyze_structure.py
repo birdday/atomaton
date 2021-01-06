@@ -8,8 +8,11 @@ from collections import OrderedDict
 
 from lammps_tools.helper import (
     mod,
+    column,
+    get_unique_items,
     convert_to_fractional,
-    convert_to_cartesian
+    convert_to_cartesian,
+    atom_in_atoms
     )
 
 
@@ -96,7 +99,6 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
     all_bond_types = []
 
     bonds_across_boundary = []
-    bonds_across_boundary_count = 0
 
     extra_atoms_for_plot = Atoms()
     extra_bonds_for_plot = []
@@ -119,11 +121,15 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                     all_bonds.extend([bond])
                     all_bond_types.extend([sorted([type1, type2])])
                     if j > len(atoms):
-                        bond_alt = sorted(set((i,len(atoms)+bonds_across_boundary_count)))
                         bonds_across_boundary.extend([bond])
-                        bonds_across_boundary_count += 1
-                        atoms_out += atoms_ext[j]
+                        truth_val, atom_to_use = atom_in_atoms(atoms_ext[j], atoms_out)
+                        if truth_val == True:
+                            bond_alt = sorted(set((i,atom_to_use.index)))
+                        else:
+                            bond_alt = sorted(set((i,len(atoms_out))))
+                            atoms_out += atoms_ext[j]
                     all_bonds_alt.extend([bond_alt])
+
                 if j > len(atoms):
                     extra_atoms_for_plot += atoms_ext[j]
                     extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
@@ -131,21 +137,26 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
     return atoms_out, all_bonds, all_bonds_alt, all_bond_types, bonds_across_boundary, extra_atoms_for_plot, extra_bonds_for_plot
 
 
-def guess_angles(atoms, bonds):
+def guess_angles(atoms, bonds, bonds_alt):
     all_angles = []
+    all_angles_alt = []
     all_angle_types = []
 
     for i in range(len(bonds)):
         bond1 = bonds[i]
+        bond1_alt = bonds_alt[i]
 
         for j in range(i+1,len(bonds)):
             bond2 = bonds[j]
+            bond2_alt = bonds_alt[j]
 
             atoms_in_angle = sorted(set(bond1+bond2))
+            atoms_in_angle_alt = sorted(set(bond1_alt+bond2_alt))
             if len(atoms_in_angle) == 3:
+
+                # Angle defined in by core atom numbers, used for calcuating dihedrals and impropers and writing lammps files
                 center_atom = sorted(set(bond1).intersection(bond2))
                 end_atoms = sorted(set(atoms_in_angle).difference(center_atom))
-
                 ordered_atoms_in_angle = copy.deepcopy(end_atoms)
                 ordered_atoms_in_angle.insert(1, *center_atom)
                 ordered_atom_types_in_angle = [atoms[index].symbol for index in end_atoms]
@@ -154,9 +165,21 @@ def guess_angles(atoms, bonds):
                 all_angles.extend([[*center_atom, ordered_atoms_in_angle]])
                 all_angle_types.extend([ordered_atom_types_in_angle])
 
-    all_angles = sorted(all_angles)
+                # Angle defined by extended atom numbers, used for calculating angle properties
+                if center_atom[0] in bond1_alt:
+                    bond2_center_atom = [i for i in bond2_alt if i >= len(atoms)]
+                    center_atoms = center_atom + bond2_center_atom
+                if center_atom[0] in bond2_alt:
+                    bond1_center_atom = [i for i in bond1_alt if i >= len(atoms)]
+                    center_atoms = center_atom + bond1_center_atom
+                all_angles_alt.extend([[*center_atoms, [bond1_alt, bond2_alt]]])
 
-    return all_angles, all_angle_types
+    sorted_indicies = np.argsort(column(all_angles,0))
+    all_angles_sorted = [all_angles[index] for index in sorted_indicies]
+    all_angles_alt_sorted = [all_angles_alt[index] for index in sorted_indicies]
+    all_angle_types_sorted = [all_angle_types[index] for index in sorted_indicies]
+
+    return all_angles_sorted, all_angles_alt_sorted, all_angle_types_sorted
 
 
 def guess_dihedrals_and_impropers(atoms_in, bonds, angles, improper_tol=0.1):
