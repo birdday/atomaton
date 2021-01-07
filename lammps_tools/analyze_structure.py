@@ -187,19 +187,23 @@ def guess_angles(atoms, bonds, bonds_alt):
     return all_angles_sorted, all_angles_alt_sorted, all_angle_types_sorted
 
 
-def guess_dihedrals_and_impropers(atoms_in, bonds, angles, improper_tol=0.1):
+def guess_dihedrals_and_impropers(atoms_in, bonds, bonds_alt, angles, angles_alt, improper_tol=0.1):
     atoms = copy.deepcopy(atoms_in)
     all_dihedrals = []
+    all_dihedrals_alt = []
     all_dihedral_types = []
     all_impropers = []
+    all_impropers_alt = []
     all_improper_types = []
 
     for i in range(len(angles)):
         center_atom = angles[i][0]
         angle = angles[i][1]
+        angle_alt = angles_alt[i][1]
 
         for j in range(len(bonds)):
             bond = bonds[j]
+            bond_alt = bonds_alt[j]
             atoms_in_group = sorted(list(set(angle+bond)))
             shared_atom = sorted(set(angle).intersection(bond))
 
@@ -214,6 +218,7 @@ def guess_dihedrals_and_impropers(atoms_in, bonds, angles, improper_tol=0.1):
                 if ordered_atoms[0] > ordered_atoms[-1]:
                     ordered_atoms.reverse()
                 all_dihedrals.extend([ordered_atoms])
+                all_dihedrals_alt.extend([angle_alt+[bond_alt]])
 
                 ordered_atom_types = [atoms[index].symbol for index in ordered_atoms]
                 all_dihedral_types.extend([ordered_atom_types])
@@ -225,6 +230,7 @@ def guess_dihedrals_and_impropers(atoms_in, bonds, angles, improper_tol=0.1):
                 ordered_atoms = list(ordered_atoms)
 
                 # Create two vectors from non-central points
+                # This method likely needs to use alt atom positions...
                 pc = atoms[center_atom].position
                 p0  = atoms[ordered_atoms[0]].position
                 v01 = atoms[ordered_atoms[1]].position - atoms[ordered_atoms[0]].position
@@ -236,7 +242,6 @@ def guess_dihedrals_and_impropers(atoms_in, bonds, angles, improper_tol=0.1):
                     dmin = abs(num/den)
                 else:
                     dmin = 0
-                # print(a,b,c,d,dmin)
 
                 if dmin <= improper_tol:
                     all_impropers.extend([[center_atom, [center_atom, *sorted(ordered_atoms)]]])
@@ -244,7 +249,14 @@ def guess_dihedrals_and_impropers(atoms_in, bonds, angles, improper_tol=0.1):
                     ordered_atom_types.insert(0, atoms[center_atom].symbol)
                     all_improper_types.extend([ordered_atom_types])
 
-    return all_dihedrals, all_dihedral_types, all_impropers, all_improper_types
+                    if center_atom in angle_alt:
+                        bond_center_atom = [i for i in bond_alt if i >= len(atoms)]
+                        all_impropers_alt.extend([ [[center_atom]+bond_center_atom, angle_alt+[bond_alt]] ])
+                    elif center_atom in bond_alt:
+                        angle_center_atom = [i for i in angle_alt[0] if i >= len(atoms)]
+                        all_impropers_alt.extend([ [[center_atom]+angle_center_atom, angle_alt+[bond_alt]] ])
+
+    return all_dihedrals, all_dihedrals_alt, all_dihedral_types, all_impropers, all_impropers_alt, all_improper_types
 
 
 def get_bonds_on_atom(atoms, bonds):
