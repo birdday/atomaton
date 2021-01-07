@@ -166,13 +166,18 @@ def guess_angles(atoms, bonds, bonds_alt):
                 all_angle_types.extend([ordered_atom_types_in_angle])
 
                 # Angle defined by extended atom numbers, used for calculating angle properties
-                if center_atom[0] in bond1_alt:
+                # Is this missing a condition for center atom not in either bond??
+                if center_atom[0] in bond1_alt and center_atom[0] in bond2_alt:
+                    center_atoms = center_atom
+                elif center_atom[0] in bond1_alt:
                     bond2_center_atom = [i for i in bond2_alt if i >= len(atoms)]
                     center_atoms = center_atom + bond2_center_atom
-                if center_atom[0] in bond2_alt:
+                elif center_atom[0] in bond2_alt:
                     bond1_center_atom = [i for i in bond1_alt if i >= len(atoms)]
                     center_atoms = center_atom + bond1_center_atom
-                all_angles_alt.extend([[*center_atoms, [bond1_alt, bond2_alt]]])
+                else:
+                    center_atoms = [i for i in bond1_alt if i >= len(atoms)] + [i for i in bond2_alt if i >= len(atoms)]
+                all_angles_alt.extend([[center_atoms, [bond1_alt, bond2_alt]]])
 
     sorted_indicies = np.argsort(column(all_angles,0))
     all_angles_sorted = [all_angles[index] for index in sorted_indicies]
