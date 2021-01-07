@@ -131,8 +131,8 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
                     all_bonds_alt.extend([bond_alt])
 
                 if j > len(atoms):
-                    extra_atoms_for_plot += atoms_ext[j]
                     extra_bonds_for_plot.extend([[i,len(atoms)+len(extra_atoms_for_plot)]])
+                    extra_atoms_for_plot += atoms_ext[j]
 
     return atoms_out, all_bonds, all_bonds_alt, all_bond_types, bonds_across_boundary, extra_atoms_for_plot, extra_bonds_for_plot
 
