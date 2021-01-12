@@ -300,3 +300,175 @@ def sort_improper_type_list(all_types):
         all_types[i][1::] = sorted(all_types[i][1::])
 
     return all_types
+
+
+def get_bond_properties(atoms, bonds, bond_types):
+    unique_bond_types, _ = get_unique_items(bond_types)
+    keys = ['-'.join(bond_type) for bond_type in unique_bond_types]
+    bond_type_indicies = {key:[] for key in keys}
+
+    bond_lengths = []
+    for i in range(len(bonds)):
+        bond_type = bond_types[i]
+        key = '-'.join(bond_type)
+        bond_type_indicies[key].extend([i])
+
+        bond = bonds[i]
+        p1 = atoms[bond[0]].position
+        p2 = atoms[bond[1]].position
+        d = calculate_distance(p1, p2)
+        bond_lengths.extend([d])
+
+    return bond_type_indicies, bond_lengths
+
+
+def get_angle_properties(atoms, all_angles, all_angle_types):
+    unique_angle_types, _ = get_unique_items(all_angle_types)
+    keys = ['-'.join(angle_type) for angle_type in unique_angle_types]
+
+    angle_type_indicies = {key:[] for key in keys}
+    angle_type_angles = []
+    angle_type_mag_ij = []
+    angle_type_mag_jk = []
+    angle_type_mag_ik = []
+
+    for i in range(len(all_angles)):
+        angle_type = all_angle_types[i]
+        key = '-'.join(angle_type)
+
+        angle = all_angles[i]
+        if len(angle[0]) == 1:
+            id_i = [index for index in angle[1][0] if index not in angle[0]]
+            id_k = [index for index in angle[1][1] if index not in angle[0]]
+            if len(id_i) != 1 or len(id_k) != 1:
+                print('index: ', i)
+                print('angle: ', angle)
+                print('ids: ', id_i, id_k)
+                raise NameError('Invalid ID length')
+            atom_i = atoms[id_i[0]]
+            atom_j = atoms[angle[0][0]]
+            atom_k = atoms[id_k[0]]
+
+            # v = vector, u = unit vector, mag = magnitude
+            v_ji = atom_j.position-atom_i.position
+            mag_ji = np.sqrt(v_ji.dot(v_ji))
+            u_ji = v_ji/mag_ji
+
+            v_jk = atom_j.position-atom_k.position
+            mag_jk = np.sqrt(v_jk.dot(v_jk))
+            u_jk = v_jk/mag_jk
+
+            v_ik = atom_i.position-atom_k.position
+            mag_ik = np.sqrt(v_ik.dot(v_ik))
+            u_ik = v_ik/mag_ik
+
+        elif len(angle[0]) == 2:
+            id_i = [index for index in angle[1][0] if index not in angle[0]]
+            id_j1 = [index for index in angle[0] if index in angle[1][0]]
+            id_j2 = [index for index in angle[0] if index in angle[1][1]]
+            id_k = [index for index in angle[1][1] if index not in angle[0]]
+            if len(id_i) != 1 or len(id_j1) != 1 or len(id_j2) != 1 or len(id_k) != 1:
+                print(id_i, id_j1, id_j2, id_k)
+                raise NameError('Invalid ID length')
+            atom_i = atoms[id_i[0]]
+            atom_j1 = atoms[id_j1[0]]
+            atom_j2 = atoms[id_j2[0]]
+            atom_k = atoms[id_k[0]]
+
+            # v = vector, u = unit vector, mag = magnitude
+            v_ji = atom_j1.position-atom_i.position
+            mag_ji = np.sqrt(v_ji.dot(v_ji))
+            u_ji = v_ji/mag_ji
+
+            v_jk = atom_j2.position-atom_k.position
+            mag_jk = np.sqrt(v_jk.dot(v_jk))
+            u_jk = v_jk/mag_jk
+
+            v_ik = atom_i.position-atom_k.position
+            mag_ik = np.sqrt(v_ik.dot(v_ik))
+            u_ik = v_ik/mag_ik
+
+        theta_ijk = np.rad2deg(np.arccos(np.clip(np.dot(u_ji, u_jk), -1.0, 1.0)))
+
+        angle_type_indicies[key].extend([i])
+        angle_type_angles.extend([theta_ijk])
+        angle_type_mag_ij.extend([mag_ji])
+        angle_type_mag_jk.extend([mag_jk])
+        angle_type_mag_ik.extend([mag_ik])
+
+    return angle_type_indicies, angle_type_angles, angle_type_mag_ij, angle_type_mag_jk, angle_type_mag_ik,
+
+
+def split_by_property(type_indicies, values, tol=5):
+    types_final = []
+    properties_final = {}
+    indicies_final = {}
+
+    for key in type_indicies.keys():
+        data = [values[i] for i in type_indicies[key]]
+        di, dv = bin_data(data, std_dev_tol=tol)
+
+        if len(di) == 1:
+            key_new = key
+            types_final.extend([key_new])
+            indicies_final[key_new] = [type_indicies[key][i] for i in di['0']]
+            properties_final[key_new] = [np.mean(dv['0']), np.std(dv['0'])]
+
+        else:
+            for key2 in di:
+                key_new = key+'---'+key2
+                types_final.extend([key_new])
+                properties_final[key_new] = [np.mean(dv[key2]), np.std(dv[key2])]
+                indicies_final[key_new] = [type_indicies[key][i] for i in di[key2]]
+
+    return types_final, properties_final, indicies_final
+
+
+def bin_data(data, std_dev_tol=1, max_bins=20):
+    min_val, max_val = np.min(data), np.max(data)
+    for n_bins in range(1,max_bins+1):
+
+        # Create bins
+        bin_size = (max_val-min_val)/n_bins
+        bins =[[min_val+bin_size*(i), min_val+bin_size*(i+1)] for i in range(n_bins)]
+        binned_indicies_dict = {str(val):[] for val in range(n_bins)}
+        binned_values_dict = {str(val):[] for val in range(n_bins)}
+
+        # Bin data points
+        num_binned_points = 0
+        for i in range(len(bins)):
+            min, max = bins[i]
+            for j in range(len(data)):
+                val = data[j]
+                if val >= min and val <= max:
+                    binned_indicies_dict[str(i)].extend([j])
+                    binned_values_dict[str(i)].extend([val])
+                    num_binned_points += 1
+
+        # Check that all points were binned, and that no points were binned twice.
+        if num_binned_points != len(data):
+            print('Warning: Number of points in bin (' + str(num_binned_points) + ') not equal to the number of points in data (' + str(len(data)) + ').' )
+
+        # Filter out empty bins
+        final_keys = [key for key in binned_indicies_dict.keys() if binned_values_dict[key] != []]
+        binned_indicies_dict = {str(i):binned_indicies_dict[final_keys[i]] for i in range(len(final_keys))}
+        binned_values_dict = {str(i):binned_values_dict[final_keys[i]] for i in range(len(final_keys))}
+        n_bins_temp = len(final_keys)
+
+        # Calculate the standard deviation of each bin
+        std_devs = []
+        for i in range(n_bins_temp):
+            data_in_bin = binned_values_dict[str(i)]
+            if len(data_in_bin) != 0:
+                std_dev = np.std(data_in_bin)
+            else:
+                std_dev = 0
+            std_devs.extend([std_dev])
+
+        # Check if converged
+        convergence_status = np.all([std_dev <= std_dev_tol for std_dev in std_devs])
+        if convergence_status == True:
+            return binned_indicies_dict, binned_values_dict
+        elif n_bins >= max_bins:
+            print('Warning: Did not successfully parition data.')
+            return binned_indicies_dict, binned_values_dict
