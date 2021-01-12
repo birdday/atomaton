@@ -90,12 +90,9 @@ def search_for_aromatic_carbons(atoms, all_dihedrals, uff_symbols, ring_tol=0.1)
     return uff_symbols
 
 
-# def get_angle_potential(angle_types):
-#
-#
 def load_atom_type_parameters(return_as_dict=True):
     # from lammps_tools.forcefields.uff.parameters.uff import UFF_DATA
-    from parameters.uff import UFF_DATA
+    from lammps_tools.forcefields.uff.parameters.uff import UFF_DATA
 
     if return_as_dict == True:
         header = ['r1', 'theta0', 'x1', 'D1', 'zeta', 'Z1', 'Vi', 'Uj', 'Xi', 'Hard', 'Radius']
@@ -150,7 +147,7 @@ def guess_bond_orders(bond_types):
     return bond_order_dict
 
 
-def get_bond_potential(bond_types, form='harmonic'):
+def get_bond_parameters(bond_types, form='harmonic'):
     """
     Standard Natural Bond Length, r_ij
       r_ij = r_i + r_j +r_BO - r_EN
@@ -160,13 +157,16 @@ def get_bond_potential(bond_types, form='harmonic'):
       N.B. Original paper says '+r_EN'. This is a mistake.
     Force Constant K_ij
     """
+    UFF_DATA = load_atom_type_parameters(return_as_dict=True)
 
     # 1. Calculate r_ij and K_ij
-    bond_orders = guess_bond_orders(bond_types)
+    bond_orders = guess_bond_orders([type.split('-')[0:2] for type in bond_types])
     bond_type_params = {}
     for bond_type in bond_types:
-        atom_i = bond_type[0]
-        atom_j = bond_type[1]
+        atoms = bond_type.split('-')
+        atom_i = atoms[0]
+        atom_j = atoms[1]
+        key = atom_i+'-'+atom_j
 
         r_i = UFF_DATA[atom_i]['r1']
         r_j = UFF_DATA[atom_j]['r1']
@@ -184,19 +184,106 @@ def get_bond_potential(bond_types, form='harmonic'):
         g = 332.06
         k_ij = g*z_i*z_j/(r_ij**3)
 
-        key = atom_i+'-'+atom_j
-        bond_type_params[key] = [k_ij, r_ij]
+        # Harmonic Oscillator = f(r_ij, K_ij)
+        if form == 'harmonic':
+            bond_type_params[key] = [k_ij, r_ij]
 
-        # print(bond_type, k_ij, r_ij)
+        # Morse Function = f(r_ij, K_ij, D_ij)
+        # Requires additional parameter, Bond Dissociation Energy, D_ij.
+        elif form == 'morse':
+            d_ij = 70 #kcal/mol
+            alpha = (k_ij/(2*d_ij))**0.5
+            bond_type_params[key] = [d_ij, alpha, r_ij]
 
-    # Harmonic Oscillator = f(r_ij, K_ij)
-    if form == 'harmonic':
-        return bond_type_params
+    return bond_type_params
 
-    # Morse Function = f(r_ij, K_ij, D_ij)
-    # Requires additional parameter, Bond Dissociation Energy, D_ij.
-    elif form == 'morse':
-        return bond_type_params
+
+def get_angle_parameters(angle_types, angle_values, angle_tol=5, degrees=True):
+    # Add code which calculates the average angle  with standard deviation of all angles of the same type, same for lenghts between atoms
+    # For this, and other applications, may want to calculate coordination number (may already have done this with 'bonds_with').
+
+    UFF_DATA = load_atom_type_parameters(return_as_dict=True)
+
+    if degrees == False:
+        for key in angle_values:
+            value_in_rad = angle_values[key]
+            value_in_deg = np.rad2deg(value_in_rad)
+            angle_values[key] = value_in_deg
+
+    angle_parameters = {}
+    for angle_type in angle_types:
+
+        # Determine angle parameters (except force contsant)
+        # Linear Angles
+        if angle_values[angle_type][0] >= 180-angle_tol and angle_values[angle_type][0] <= 180+angle_tol:
+            lammps_angle_type = 'cosine/periodic'
+            n, theta_o = 1, 180
+
+        # Trigonal Planar
+        elif angle_values[angle_type][0] >= 120-angle_tol and angle_values[angle_type][0] <= 120+angle_tol:
+            lammps_angle_type = 'cosine/periodic'
+            n, theta_o = 3, 120
+
+        # Square Planar or Octahedral
+        elif angle_values[angle_type][0] >= 90-angle_tol and angle_values[angle_type][0] <= 90+angle_tol:
+            lammps_angle_type = 'cosine/periodic'
+            n, theta_o = 4, 90
+
+        # General Non-linear Case
+        else:
+            theta_o = angle_values[angle_type][0]
+            lammps_angle_type = 'fourier'
+            c2 = 1/(4*(np.sin(np.deg2rad(theta_o)))**2)
+            c1 = -4*c2*np.cos(np.deg2rad(theta_o))
+            c0 = c2*(2*(np.cos(np.deg2rad(theta_o)))**2+1)
+
+        # Determine Force Constant
+        atoms = angle_type.split('-')
+
+        atom_i = atoms[0]
+        atom_j = atoms[1]
+        atom_k = atoms[2]
+
+        r_i = UFF_DATA[atom_i]['r1']
+        r_j = UFF_DATA[atom_j]['r1']
+        r_k = UFF_DATA[atom_k]['r1']
+        x_i = UFF_DATA[atom_i]['Xi']
+        x_j = UFF_DATA[atom_j]['Xi']
+        x_k = UFF_DATA[atom_k]['Xi']
+        z_i = UFF_DATA[atom_i]['Z1']
+        z_j = UFF_DATA[atom_j]['Z1']
+        z_k = UFF_DATA[atom_k]['Z1']
+
+        bond_orders = guess_bond_orders([ [atom_i, atom_j], [atom_j, atom_k] ])
+
+        # r_ij
+        bo = bond_orders[atom_i+'-'+atom_j]
+        r_BO = -0.1332*(r_i+r_j)*np.log(bo)
+        r_EN = (r_i*r_j*(x_i**0.5-x_j**0.5)**2) / (x_i*r_i + x_j*r_j)
+        r_ij = r_i + r_j +r_BO - r_EN
+
+        # r_jk
+        bo = bond_orders[atom_j+'-'+atom_k]
+        r_BO = -0.1332*(r_j+r_k)*np.log(bo)
+        r_EN = (r_j*r_k*(x_j**0.5-x_k**0.5)**2) / (x_j*r_j + x_k*r_k)
+        r_jk = r_j + r_k +r_BO - r_EN
+
+        # r_ik
+        r_ik = np.sqrt(r_ij**2 + r_jk**2 - 2*r_ij*r_jk*np.cos(np.deg2rad(theta_o)))
+
+        beta = 664.12/(r_ij*r_jk)
+        k_ijk = (beta*z_i*z_k/(r_ik**5)) * (r_ij*r_jk) * ( (3*r_ij*r_jk)*(1-np.cos(np.deg2rad(theta_o))**2) - (r_ik**2 * np.cos(np.deg2rad(theta_o)) ) )
+
+        if lammps_angle_type == 'cosine/periodic':
+            c, b = k_ijk*(n**2), (-1)**n
+            angle_parameters[angle_type] = [lammps_angle_type, k_ijk, b, n]
+        elif lammps_angle_type == 'fourier':
+            angle_parameters[angle_type] = [lammps_angle_type, k_ijk, c0, c1, c2]
+
+    return angle_parameters
+
+
+
 # def get_dihedral_potential(dihedral_types):
 #
 #
