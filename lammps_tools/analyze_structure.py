@@ -22,13 +22,11 @@ def calculate_distance(p1, p2):
     return dist
 
 
-def create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, fractional_out=False, periodic='xyz', filename=None):
+def create_extended_cell(atoms, mol_ids, periodic='xyz'):
 
     atoms_copy = copy.deepcopy(atoms)
-    if fractional_in == False:
-        atoms_copy = convert_to_fractional(atoms_copy, cell_lengths, cell_angles, degrees=degrees)
     all_atomtypes = atoms_copy.get_chemical_symbols()
-    all_xyz_frac = atoms_copy.get_positions().transpose()
+    all_xyz_frac = atoms_copy.get_scaled_positions().transpose()
     all_indicies = [atom.index for atom in atoms_copy]
 
     atom_types_extended = []
@@ -37,7 +35,7 @@ def create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True
     mol_ids_extended = []
 
     trans = [0, -1, 1]
-    # Develop better strategy for this section, else is unecessarily long
+    # Develop better strategy for this section, else is unecessarily long - recursion??
     if periodic == 'xyz':
         for xt in trans:
             for yt in trans:
@@ -52,8 +50,8 @@ def create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True
                     pseudo_indicies.extend(all_indicies)
                     mol_ids_extended.extend(mol_ids)
 
-    zt = 0
-    if periodic == 'xy':
+    elif periodic == 'xy':
+        zt = 0
         for xt in trans:
             for yt in trans:
                 x_trans = all_xyz_frac[0] + xt
@@ -66,29 +64,30 @@ def create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True
                 pseudo_indicies.extend(all_indicies)
                 mol_ids_extended.extend(mol_ids)
 
-    if periodic == None:
+    elif periodic == None:
         atom_types_extended = all_atomtypes
         atom_positions_extended = all_xyz_frac.transpose()
         pseudo_indicies = all_indicies
         mol_ids_extended = mol_ids
 
+    else:
+        raise NameError('Unsupported or invalid periodicity.')
+
+    cell_params = atoms_copy.get_cell_lengths_and_angles()
+    cell_lengths, cell_angles = cell_params[0:3], cell_params[3::]
+    atom_positions_extended = convert_to_cartesian(atom_positions_extended, cell_lengths, cell_angles, degrees=True)
     atoms_extended = Atoms(atom_types_extended, atom_positions_extended)
-    if filename != None:
-        ase.io.write(filename, convert_to_cartesian(atoms_extended, cell_lengths, cell_angles, degrees=True))
-    if fractional_out == False:
-        atoms_extended = convert_to_cartesian(atoms_extended, cell_lengths, cell_angles, degrees=True)
+    atoms_extended.set_cell([*cell_lengths, *cell_angles])
 
     return atoms_extended, mol_ids_extended, pseudo_indicies
 
 
-def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, cutoff={'default': 1.5}, periodic='xyz'):
+def guess_bonds(atoms_in, mol_ids, cutoff={'default': 1.5}, periodic='xyz'):
 
     # Prepare Atoms Object
     atoms = copy.deepcopy(atoms_in)
-    if fractional_in == True:
-        atoms = convert_to_cartesian(atoms, cell_lengths, cell_angles, degrees=True)
     atoms_out = copy.deepcopy(atoms)
-    atoms_ext, mol_ids_ext, pseudo_indicies = create_extended_cell(atoms, mol_ids, cell_lengths, cell_angles, degrees=True, fractional_in=False, fractional_out=False, periodic=periodic)
+    atoms_ext, mol_ids_ext, pseudo_indicies = create_extended_cell(atoms, mol_ids, periodic=periodic)
 
     # Check Cutoff Dictionary
     if 'default' not in cutoff.keys():
@@ -114,7 +113,7 @@ def guess_bonds(atoms_in, mol_ids, cell_lengths, cell_angles, degrees=True, frac
             r = calculate_distance(p1,p2)
             bondtype = '-'.join(sorted([type1, type2]))
 
-            if ((bondtype in cutoff.keys() and r <= cutoff[bondtype]) or r <= cutoff['default']) and mol_ids[i] == mol_ids_ext[j]:
+            if ((bondtype in cutoff.keys() and r <= cutoff[bondtype]) or (bondtype not in cutoff.keys() and r <= cutoff['default'])) and mol_ids[i] == mol_ids_ext[j]:
                 bond = sorted(set((i,pseudo_indicies[j])))
                 bond_alt = bond
                 if bond not in all_bonds:
