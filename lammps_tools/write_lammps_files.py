@@ -32,31 +32,20 @@ def get_lammps_box_parameters(cell_lengths, cell_angles, degrees=True):
     return lx, ly, lz, xy, xz, yz
 
 
-def write_lammps_input_file(filename):
-    with open (filename, 'w') as fdata:
-
-        # Comment Line
-        f.write('COMMENT LINE \n')
-
-        for atom in atoms:
-            if 'position_fixed':
-                fdata.write('fix {} {} setforce 0.0 0.0 0.0\n'.format(id, group_id))
-
-
 def write_lammps_data_file(filename, atoms, ff_atom_types, mol_ids, cell_lengths, cell_angles, all_bonds, all_bond_types, all_angles, all_angle_types, all_dihedrals, all_dihedral_types, all_impropers, all_improper_types, degrees=True):
 
     f = open(filename, 'w')
 
     xhi, yhi, zhi, xy, xz, yz = get_lammps_box_parameters(cell_lengths, cell_angles, degrees=degrees)
     unique_atom_types, _ = get_unique_items(ff_atom_types)
-
     unique_bond_types, _ = get_unique_items(all_bond_types)
     unique_angle_types, _ = get_unique_items(all_angle_types)
     unique_dihedral_types, _ = get_unique_items(all_dihedral_types)
     unique_improper_types, _ = get_unique_items(all_improper_types)
 
     # Comment Line
-    f.write('#COMMENT LINE \n')
+    f.write('#COMMENT LINE 1 \n')
+    f.write('#COMMENT LINE 2 \n')
 
     # Header - Specify num_atoms, atom_types, box_dimensions
     f.write('{} atoms\n'.format(len(atoms)))
@@ -128,7 +117,7 @@ def write_lammps_data_file(filename, atoms, ff_atom_types, mol_ids, cell_lengths
     for i in range(len(unique_atom_types)):
         atom_type = unique_atom_types[i]
         atom_type_for_mass = atom_type[0:2]
-        if atom_type_for_mass[1] == '_':
+        if len(atom_type_for_mass) > 1 and atom_type_for_mass[1] == '_':
             atom_type_for_mass = atom_type_for_mass[0]
         mass = masses[atom_type_for_mass]
         f.write('{} {} #{}\n'.format(i+1, mass, atom_type))
