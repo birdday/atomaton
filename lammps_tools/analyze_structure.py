@@ -90,8 +90,14 @@ def guess_bonds(atoms_in, mol_ids, cutoff={'default': 1.5}, periodic='xyz'):
     atoms_ext, mol_ids_ext, pseudo_indicies = create_extended_cell(atoms, mol_ids, periodic=periodic)
 
     # Check Cutoff Dictionary
+    for key in cutoff:
+        if len(cutoff[key]) == 1:
+            cutoff[key] = [0, cutoff[key]]
+        elif len(cutoff[key]) > 2:
+            raise NameError('Invalid cutoff!')
+
     if 'default' not in cutoff.keys():
-        cutoff['default'] = 1.5
+        cutoff['default'] = [0, 1.5]
 
     all_bonds = []
     all_bonds_alt = []
@@ -113,7 +119,9 @@ def guess_bonds(atoms_in, mol_ids, cutoff={'default': 1.5}, periodic='xyz'):
             r = calculate_distance(p1,p2)
             bondtype = '-'.join(sorted([type1, type2]))
 
-            if ((bondtype in cutoff.keys() and r <= cutoff[bondtype]) or (bondtype not in cutoff.keys() and r <= cutoff['default'])) and mol_ids[i] == mol_ids_ext[j]:
+            if ((bondtype in cutoff.keys() and r >= cutoff[bondtype][0] and r <= cutoff[bondtype][1]) \
+            or (bondtype not in cutoff.keys() and r >= cutoff['default'][0] and r <= cutoff['default'][1])) \
+            and mol_ids[i] == mol_ids_ext[j]:
                 bond = sorted(set((i,pseudo_indicies[j])))
                 bond_alt = bond
                 if bond not in all_bonds:
