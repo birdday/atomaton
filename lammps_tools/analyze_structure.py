@@ -479,3 +479,34 @@ def bin_data(data, std_dev_tol=1, max_bins=20):
         elif n_bins >= max_bins:
             print('Warning: Did not successfully parition data.')
             return binned_indicies_dict, binned_values_dict
+
+
+def remove_duplicate_atoms(atoms, tol=0.1):
+
+    atoms_copy = copy.deepcopy(atoms)
+    dup_atom_indicies = []
+    for i in range(len(atoms_copy)):
+        for j in range(i+1,len(atoms_copy)):
+            p1 = atoms_copy[i].position
+            p2 = atoms_copy[j].position
+            d = calculate_distance(p1, p2)
+            if d < tol:
+                dup_atom_indicies.extend([j])
+
+    del atoms_copy[[i for i in dup_atom_indicies]]
+
+    return atoms_copy
+
+
+def remove_atoms_outside_cell(atoms, cell_lengths):
+
+    atoms_copy = copy.deepcopy(atoms)
+    atom_indicies_to_del = []
+    for i in range(len(atoms_copy)):
+        p = atoms_copy[i].position
+        if np.all( [p[i]>=0 and p[i]<=cell_lengths[i] for i in range(3)] ) == False:
+            atom_indicies_to_del.extend([i])
+
+    del atoms_copy[[i for i in atom_indicies_to_del]]
+
+    return atoms_copy
