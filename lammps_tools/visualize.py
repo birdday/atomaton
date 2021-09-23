@@ -1,6 +1,7 @@
 import imageio
 import mayavi.mlab as mlab
 import numpy as np
+import matplotlib.cm
 
 
 plotting_parameters = {
@@ -100,7 +101,31 @@ def draw_unit_cell(cell_lengths, cell_angles, cell_r=0.15, color=(0.4, 0.4, 0.4)
     mlab.pipeline.surface(corner_tube, color=color)
 
 
-def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, filename=None, interactive=False, figure={}, objects={}, camera={}):
+def bin_data(x_data, y_data, num_bins=10, val_range=None):
+    if val_range == None:
+        min_x, max_x = min(x_data), max(x_data)
+    else:
+        min_x, max_x = val_range
+    x_bins = [[] for i in range(num_bins)]
+    y_bins = [[] for i in range(num_bins)]
+    bin_points = np.linspace(min_x, max_x, num_bins+1)
+
+    for i in range(len(x_data)):
+        x, y = x_data[i], y_data[i]
+        for j in range(len(bin_points)-1):
+            status = 'unbinned'
+            if x >= bin_points[j] and x <= bin_points[j+1]:
+                x_bins[j].extend([x])
+                y_bins[j].extend([y])
+                status = 'binned'
+                break
+        if status == 'unbinned':
+            print(x, 'Point not binned!')
+
+    return x_bins, y_bins
+
+
+def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, filename=None, interactive=False, figure={}, objects={}, camera={}, bond_energies=None, bond_cmap='Reds', bond_bins=5, e_range=None):
 
     # Update all default parameter sets
     figure_default = {'bgcolor':(0,0,0), 'size':(1000,1000)}
@@ -127,7 +152,14 @@ def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, fil
     mlab.figure(1, bgcolor=bgcolor, size=size)
     mlab.clf()
     draw_atoms(atoms, sf=atom_sf)
-    draw_bonds(atoms, bonds, bonds_across_boundary, bond_r=bond_r, color=bond_color)
+    if bond_energies != None:
+        cmap = matplotlib.cm.get_cmap(bond_cmap)
+        _, binned_bonds = bin_data(bond_energies, bonds, num_bins=bond_bins, val_range=e_range)
+        for i in range(bond_bins):
+            bond_color = cmap((i*bond_bins)/bond_bins)[0:3]
+            draw_bonds(atoms, binned_bonds[i], bonds_across_boundary, bond_r=bond_r, color=bond_color)
+    else:
+        draw_bonds(atoms, bonds, bonds_across_boundary, bond_r=bond_r, color=bond_color)
     if show_unit_cell == True:
         a, b, c, alpha, beta, gamma = atoms.get_cell_lengths_and_angles()
         cell_lengths, cell_angles = [a, b, c], [alpha, beta, gamma]
