@@ -10,6 +10,7 @@ Text from webpage is also copied to 'uff_corrections.txt' for future reference.
 def assign_forcefield_atom_types(atoms, bonds_with):
     uff_symbols = []
     for atom in atoms:
+        type=None
         num_bonds_on_atom = len(bonds_with[str(atom.index)])
         if atom.symbol == 'H':
             if num_bonds_on_atom == 1:
@@ -19,8 +20,19 @@ def assign_forcefield_atom_types(atoms, bonds_with):
             else:
                 type='H_'
 
+        if atom.symbol == 'N':
+            # Note aromatic nitrogens are tested for separately and will overwrite anything assigned here.
+            if num_bonds_on_atom == 2:
+                type='N_1'
+            if num_bonds_on_atom == 3:
+                type='N_2'
+            if num_bonds_on_atom == 4:
+                type='N_3'
+            else:
+                type='N_3'
+
         if atom.symbol == 'C':
-            # Note aromatic carbons are testing for separately and will overwrite anything assigned here.
+            # Note aromatic carbons are tested for separately and will overwrite anything assigned here.
             if num_bonds_on_atom == 2:
                 type='C_1'
             if num_bonds_on_atom == 3:
@@ -43,6 +55,8 @@ def assign_forcefield_atom_types(atoms, bonds_with):
 
         if atom.symbol == 'Ni':
             type = 'Ni4+2'
+
+
 
         uff_symbols.extend([type])
 
@@ -109,13 +123,15 @@ def load_atom_type_parameters(return_as_dict=True):
     return UFF_DATA
 
 
-def get_pair_potential(atom_types):
+def get_pair_potentials(atom_types):
     """
     This is simply the non-bonded van Der Waals potential, modelled by Lennard-Jones parameters for the atom types. Typcially, we just specify the I,I pair coefficients and I,J pair coefficients are determined by the mixing rules. I,J pair coefficients can be explicitly listed to overwrite the mixing rules, however.
     A 6-12 Lennard-Jones potential of the following form is used:
         E_vdw = D_ij*(-2*(x_ij/x)**6+(x_ij/x)**12)
     N.B. CHECK HOW THIS IS IMPLEMENTED IN LAMMPS
     """
+
+    UFF_DATA = load_atom_type_parameters(return_as_dict=True)
 
     atom_type_params = {}
     for atom_type in atom_types:
