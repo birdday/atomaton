@@ -49,7 +49,7 @@ plotting_parameters = {
     }
 
 
-def draw_atoms(atom_config_new, sf=0.125):
+def draw_atoms(atom_config_new, sf=0.125, opacity=1.0):
 
     atom_positions = atom_config_new.get_positions().transpose()
 
@@ -66,11 +66,12 @@ def draw_atoms(atom_config_new, sf=0.125):
         pts = mlab.points3d(x, y, z,
             resolution=plotting_parameters[key]['resolution'],
             scale_factor=plotting_parameters[key]['cov_radius']*sf,
-            color=plotting_parameters[key]['color']
+            color=plotting_parameters[key]['color'],
+            opacity=opacity
             )
 
 
-def draw_bonds(atom_config_new, all_bonds, all_bonds_across_boundary, bond_r=0.15, color=(0.4, 0.4, 0.4)):
+def draw_bonds(atom_config_new, all_bonds, all_bonds_across_boundary, bond_r=0.15, color=(0.4, 0.4, 0.4), opacity=1.0):
 
     atom_positions = atom_config_new.get_positions().transpose()
     x,y,z = atom_positions
@@ -79,10 +80,10 @@ def draw_bonds(atom_config_new, all_bonds, all_bonds_across_boundary, bond_r=0.1
     all_pts = mlab.points3d(x, y, z, resolution=8, scale_factor=0)
     all_pts.mlab_source.dataset.lines = np.array(connections)
     tube = mlab.pipeline.tube(all_pts, tube_radius=bond_r)
-    mlab.pipeline.surface(tube, color=color)
+    mlab.pipeline.surface(tube, color=color, opacity=opacity)
 
 
-def draw_unit_cell(cell_lengths, cell_angles, cell_r=0.15, color=(0.4, 0.4, 0.4)):
+def draw_unit_cell(cell_lengths, cell_angles, cell_r=0.15, color=(0.4, 0.4, 0.4), opacity=1.0):
 
     unit_cell_corners = [[0,0,0], [1,0,0], [0,1,0], [0,0,1], [1,1,0], [1,0,1], [0,1,1], [1,1,1]]
 
@@ -98,7 +99,7 @@ def draw_unit_cell(cell_lengths, cell_angles, cell_r=0.15, color=(0.4, 0.4, 0.4)
     corner_points = mlab.points3d(x, y, z, resolution=8, scale_factor=0)
     corner_points.mlab_source.dataset.lines = np.array(((0,1), (0,2), (0,3), (1,4), (2,4), (1,5), (3,5), (2,6), (3,6), (4,7), (5,7), (6,7)))
     corner_tube = mlab.pipeline.tube(corner_points, tube_radius=cell_r)
-    mlab.pipeline.surface(corner_tube, color=color)
+    mlab.pipeline.surface(corner_tube, color=color, opacity=opacity)
 
 
 def bin_data(x_data, y_data, num_bins=10, val_range=None):
@@ -125,7 +126,7 @@ def bin_data(x_data, y_data, num_bins=10, val_range=None):
     return x_bins, y_bins
 
 
-def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, filename=None, interactive=False, figure={}, objects={}, camera={}, bond_energies=None, bond_cmap='Reds', bond_bins=5, e_range=None):
+def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, filename=None, interactive=False, figure={}, objects={}, camera={}, bond_energies=None, bond_cmap='Reds', bond_bins=5, e_range=None, opacity=0.5):
 
     # Update all default parameter sets
     figure_default = {'bgcolor':(0,0,0), 'size':(1000,1000)}
@@ -151,19 +152,20 @@ def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, fil
     # Create figure
     mlab.figure(1, bgcolor=bgcolor, size=size)
     mlab.clf()
-    draw_atoms(atoms, sf=atom_sf)
+    draw_atoms(atoms, sf=atom_sf, opacity=opacity)
     if bond_energies != None:
         cmap = matplotlib.cm.get_cmap(bond_cmap)
         _, binned_bonds = bin_data(bond_energies, bonds, num_bins=bond_bins, val_range=e_range)
         for i in range(bond_bins):
             bond_color = cmap((i*bond_bins)/bond_bins)[0:3]
-            draw_bonds(atoms, binned_bonds[i], bonds_across_boundary, bond_r=bond_r, color=bond_color)
+            draw_bonds(atoms, binned_bonds[i], bonds_across_boundary, bond_r=bond_r, color=bond_color, opacity=opacity)
     else:
-        draw_bonds(atoms, bonds, bonds_across_boundary, bond_r=bond_r, color=bond_color)
+        draw_bonds(atoms, bonds, bonds_across_boundary, bond_r=bond_r, color=bond_color, opacity=opacity)
     if show_unit_cell == True:
         a, b, c, alpha, beta, gamma = atoms.get_cell_lengths_and_angles()
         cell_lengths, cell_angles = [a, b, c], [alpha, beta, gamma]
-        draw_unit_cell(cell_lengths, cell_angles, cell_r=cell_r, color=cell_color)
+        draw_unit_cell(cell_lengths, cell_angles, cell_r=cell_r, color=cell_color, opacity=opacity)
+
 
     # Set Camera Parameters
     mlab.view(azimuth=azimuth, elevation=elevation, distance=distance, focalpoint=focalpoint)
