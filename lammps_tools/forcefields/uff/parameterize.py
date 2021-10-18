@@ -1,5 +1,6 @@
 import ase as ase
-from ase import Atoms, io, spacegroup, build, visualize
+from ase import Atom, Atoms, io, spacegroup, build, visualize
+import copy
 import numpy as np
 
 """
@@ -56,6 +57,11 @@ def assign_forcefield_atom_types(atoms, bonds_with):
         if atom.symbol == 'Ni':
             type = 'Ni4+2'
 
+        if atom.symbol == 'Zn':
+            type = 'Zn3+2'
+
+        if atom.symbol == 'Zr':
+            type = 'Zr3+4'
 
 
         uff_symbols.extend([type])
@@ -101,7 +107,23 @@ def search_for_aromatic_carbons(atoms, all_dihedrals, uff_symbols, ring_tol=0.1)
                     for index in d2:
                         uff_symbols[index] = 'C_R'
 
+        # Assume any carbons bonded to an aromatic carbon also renoate (only search once)
+
+
+
     return uff_symbols
+
+
+def search_for_secondary_aromatics(atoms, bonds_present, uff_symbols):
+    uff_symbols_updated = copy.deepcopy(uff_symbols)
+
+    for atom in atoms:
+        if atom.symbol == 'C' or atom.symbol == 'N' or atom.symbol == 'O':
+            bonded_atom_types = [uff_symbols[val] for bond in bonds_present[str(atom.index)] for val in bond if val != atom.index]
+            if 'C_R' in bonded_atom_types:
+                uff_symbols_updated[atom.index] = atom.symbol+'_R'
+
+    return uff_symbols_updated
 
 
 def load_atom_type_parameters(return_as_dict=True):
@@ -291,8 +313,8 @@ def get_angle_parameters(angle_types, angle_values, angle_tol=5, degrees=True):
         k_ijk = (beta*z_i*z_k/(r_ik**5)) * (r_ij*r_jk) * ( (3*r_ij*r_jk)*(1-np.cos(np.deg2rad(theta_o))**2) - (r_ik**2 * np.cos(np.deg2rad(theta_o)) ) )
 
         if lammps_angle_type == 'cosine/periodic':
-            c, b = k_ijk*(n**2), (-1)**n
-            angle_parameters[angle_type] = [lammps_angle_type, k_ijk, b, n]
+            c, b = k_ijk*(n**2)/2, (-1)**n
+            angle_parameters[angle_type] = [lammps_angle_type, k_ijk/2, b, n]
         elif lammps_angle_type == 'fourier':
             angle_parameters[angle_type] = [lammps_angle_type, k_ijk, c0, c1, c2]
 

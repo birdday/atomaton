@@ -1,5 +1,5 @@
 import ase as ase
-from ase import Atoms, io, spacegroup, build, visualize
+from ase import Atom, Atoms, io, spacegroup, build, visualize
 import copy
 import numpy as np
 import glob
@@ -82,6 +82,76 @@ def create_extended_cell(atoms, mol_ids, periodic='xyz'):
     return atoms_extended, mol_ids_extended, pseudo_indicies
 
 
+def create_extended_cell_minimal(atoms, max_bond_length=5.0, periodic='xyz'):
+    """
+    Currently implemented for only xyz periodicity.
+    # Add check if unit cell if big enough for given max bond length
+    """
+    atoms_copy = copy.deepcopy(atoms)
+    cell_x, cell_y, cell_z = atoms_copy.cell.cellpar()[0:3]
+    atoms_extended = Atoms()
+
+    if type(max_bond_length) == dict:
+        max_bond_length = max([max(max_bond_length[key]) for key in max_bond_length])
+    elif type(max_bond_length) != int and type(max_bond_length) != float:
+        raise NameError('Invalid max_bond_length type.')
+
+    if max_bond_length >= 0.5*cell_x or max_bond_length >= 0.5*cell_y or max_bond_length >= 0.5*cell_z:
+        raise NameError('max_bond_length greater than half the cell length.')
+
+    for atom in atoms_copy:
+        px, py, pz = atom.position
+        perx, pery, perz = None, None, None
+
+        # Check X
+        if px >= 0 and px <= max_bond_length:
+            perx = '+x'
+            ext_x = cell_x
+            atoms_extended += Atom(atom.symbol, [px+ext_x, py, pz])
+        if px >= cell_x - max_bond_length and px <= cell_x:
+            perx = '-x'
+            ext_x = -cell_x
+            atoms_extended += Atom(atom.symbol, [px+ext_x, py, pz])
+
+        # Check Y
+        if py >= 0 and py <= max_bond_length:
+            pery = '+y'
+            ext_y = cell_y
+            atoms_extended += Atom(atom.symbol, [px, py+ext_y, pz])
+        if py >= cell_y - max_bond_length and py <= cell_y:
+            pery = '-y'
+            ext_y = -cell_y
+            atoms_extended += Atom(atom.symbol, [px, py+ext_y, pz])
+
+        # Check Z
+        if pz >= 0 and pz <= max_bond_length:
+            perz = '+z'
+            ext_z = cell_z
+            atoms_extended += Atom(atom.symbol, [px, py, pz+ext_z])
+        if pz >= cell_z - max_bond_length and pz <= cell_z:
+            perz = '-z'
+            ext_z = -cell_z
+            atoms_extended += Atom(atom.symbol, [px, py, pz+ext_z])
+
+        # Check XY
+        if perx != None and pery != None:
+            atoms_extended += Atom(atom.symbol, [px+ext_x, py+ext_y, pz])
+
+        # Check XZ
+        if perx != None and perz != None:
+            atoms_extended += Atom(atom.symbol, [px+ext_x, py, pz+ext_z])
+
+        # Check YZ
+        if pery != None and perz != None:
+            atoms_extended += Atom(atom.symbol, [px, py+ext_y, pz+ext_z])
+
+        # Check XYZ
+        if perx != None and pery != None and perz != None:
+            atoms_extended += Atom(atom.symbol, [px+ext_x, py+ext_y, pz+ext_z])
+
+    return atoms_copy+atoms_extended
+
+
 def guess_bonds(atoms_in, mol_ids, cutoff={'default': 1.5}, periodic='xyz'):
 
     # Prepare Atoms Object
@@ -109,6 +179,9 @@ def guess_bonds(atoms_in, mol_ids, cutoff={'default': 1.5}, periodic='xyz'):
     extra_bonds_for_plot = []
 
     for i in range(len(atoms)):
+
+        if i % 100 == 0: print(i, '/', len(atoms))
+
         p1 = atoms[i].position
         type1 = atoms[i].symbol
 
@@ -508,5 +581,31 @@ def remove_atoms_outside_cell(atoms, cell_lengths):
             atom_indicies_to_del.extend([i])
 
     del atoms_copy[[i for i in atom_indicies_to_del]]
+
+    return atoms_copy
+
+
+def wrap_atoms_outside_cell(atoms, cell_lengths):
+
+    atoms_copy = copy.deepcopy(atoms)
+    cell_x, cell_y, cell_z = cell_lengths
+
+    for i in range(len(atoms_copy)):
+        px, py, pz = atoms_copy[i].position
+
+        if px < 0:
+            atoms_copy[i].position[0] += cell_x
+        if px >= cell_x:
+            atoms_copy[i].position[0] += -cell_x
+
+        if py < 0:
+            atoms_copy[i].position[1] += cell_y
+        if py >= cell_y:
+            atoms_copy[i].position[1] += -cell_y
+
+        if pz < 0:
+            atoms_copy[i].position[2] += cell_z
+        if pz >= cell_z:
+            atoms_copy[i].position[2] += -cell_z
 
     return atoms_copy

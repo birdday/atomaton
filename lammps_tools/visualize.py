@@ -126,7 +126,7 @@ def bin_data(x_data, y_data, num_bins=10, val_range=None):
     return x_bins, y_bins
 
 
-def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, filename=None, interactive=False, figure={}, objects={}, camera={}, bond_energies=None, bond_cmap='Reds', bond_bins=5, e_range=None, opacity=0.5):
+def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, filename=None, interactive=False, figure={}, objects={}, camera={}, bond_energies=None, bond_cmap='Reds', bond_bins=5, e_range=None, opacity=1.0):
 
     # Update all default parameter sets
     figure_default = {'bgcolor':(0,0,0), 'size':(1000,1000)}
