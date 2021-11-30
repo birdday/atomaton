@@ -8,6 +8,10 @@ def mod(a,b):
     return remainder
 
 
+def column(matrix, i):
+    return [row[i] for row in matrix]
+
+
 def get_unique_items(items):
     unique_items = []
     unique_indicies = []
@@ -36,57 +40,59 @@ def get_center_of_cell(cell_lengths, cell_angles):
     return cell_cop
 
 
-def convert_to_fractional(ase_atoms, cell_lengths, cell_angles, degrees=True):
+def convert_to_fractional(positions, cell_lengths, cell_angles, degrees=True):
+    # Load cell lengths and angle
     a, b, c = cell_lengths
     if degrees == True:
         alpha, beta, gamma = np.deg2rad(cell_angles)
     else:
         alpha, beta, gamma = cell_angles
 
+    # Create conversion matrix
     omega = a*b*c*(1-np.cos(alpha)**2-np.cos(beta)**2-np.cos(gamma)**2+2*np.cos(alpha)*np.cos(beta)*np.cos(gamma))**0.5
     cart_to_frac_matrix = [ [1/a, -np.cos(gamma)/(a*np.sin(gamma)), b*c*(np.cos(alpha)*np.cos(gamma)-np.cos(beta))/(omega*np.sin(gamma))],
         [0, 1/(b*np.sin(gamma)), a*c*(np.cos(beta)*np.cos(gamma)-np.cos(alpha))/(omega*np.sin(gamma))],
         [0, 0, (a*b*np.sin(gamma))/omega] ]
 
-    all_xyz = ase_atoms.get_positions()
-    all_xyx_frac = np.matmul(cart_to_frac_matrix, all_xyz.transpose())
-    ase_atoms.set_positions(all_xyx_frac.transpose())
+    # Load and change positions
+    all_xyz = np.array(positions)
+    all_xyx_cart = np.matmul(cart_to_frac_matrix, all_xyz.transpose())
+    positions = all_xyx_cart.transpose()
 
     return ase_atoms
 
 
-def convert_to_cartesian(ase_atoms, cell_lengths, cell_angles, degrees=True):
+def convert_to_cartesian(positions, cell_lengths, cell_angles, degrees=True):
+    # Load cell lengths and angle
     a, b, c = cell_lengths
     if degrees == True:
         alpha, beta, gamma = np.deg2rad(cell_angles)
     else:
         alpha, beta, gamma = cell_angles
 
+    # Create conversion matrix
     omega = a*b*c*(1-np.cos(alpha)**2-np.cos(beta)**2-np.cos(gamma)**2+2*np.cos(alpha)*np.cos(beta)*np.cos(gamma))**0.5
     frac_to_cart_matrix = [ [a, b*np.cos(gamma), c*np.cos(beta)],
         [0, b*np.sin(gamma), c*(np.cos(alpha)-np.cos(beta)*np.cos(gamma))/np.sin(gamma)],
         [0, 0, omega/(a*b*np.sin(gamma))] ]
 
-    all_xyz = ase_atoms.get_positions()
+    # Load and change positions
+    all_xyz = np.array(positions)
     all_xyx_cart = np.matmul(frac_to_cart_matrix, all_xyz.transpose())
-    ase_atoms.set_positions(all_xyx_cart.transpose())
+    positions = all_xyx_cart.transpose()
 
-    return ase_atoms
+    return positions
 
 
-def write_pdb_with_bonds(filename, atoms, bonds, cell_lengths, cell_angles, spacegroup='P 1', spacegroup_number='1', fractional_in=False, degrees=True):
-
-    if degrees == False:
-        cell_angles = np.deg2rad(cell_angles)
-    if fractional_in == True:
-        atoms = convert_to_cartesian(atoms, cell_lengths, cell_angles, degrees=True)
+def write_pdb_with_bonds(filename, atoms, bonds, spacegroup='P 1', spacegroup_number='1'):
 
     f = open(filename, 'w')
 
     f.write('COMPND    UNNAMED\n')
     f.write('AUTHOR    Brian Day - LAMMPS Tools2\n')
     format = 'CRYST1%9.3f%9.3f%9.3f%7.2f%7.2f%7.2f %s\n'
-    f.write(format % (*cell_lengths, *cell_angles, spacegroup))
+
+    f.write(format % (*atoms.get_cell_lengths_and_angles(), spacegroup))
 
     # Write Atoms
     format = ('ATOM  %5d %4s MOL     1    %8.3f%8.3f%8.3f%6.2f%6.2f          %2s  \n')
@@ -101,3 +107,12 @@ def write_pdb_with_bonds(filename, atoms, bonds, cell_lengths, cell_angles, spac
     f.write('END')
 
     f.close()
+
+
+def atom_in_atoms(atom, atoms):
+    for i in range(len(atoms)):
+        other_atom = atoms[i]
+        if atom.symbol==other_atom.symbol and np.all(atom.position==other_atom.position):
+            return True, other_atom
+        else:
+            return False, atom

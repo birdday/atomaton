@@ -1,0 +1,190 @@
+Original Link: http://towhee.sourceforge.net/forcefields/uff.html
+
+MCCCS Towhee: UFF
+
+--- Overview ---
+This section covers the Universal Force Field (UFF) as it is implemented into the towhee_ff_UFF file in the ForceFields directory. All of the Towhee atom types for this force field are listed, along with a short description of their meanings. Note that UFF is a Lennard-Jones style force field, but has some special additional parameters and so cannot be directly combined with other force fields. You need to use the classical_potential 'UFF 12-6' for the UFF force field and the suggested mixing rules are 'Geometric'. Please note that the UFF paper contains a method to generate Exponential-6 potentials from their data set as well as the 12-6. If anyone is interested in an Exponential-6 version of this force field please let me know and I'll consider implementing that as well. I would like to acknowledge Anthony Rappe for kindly answering my questions about this force field. Any discrepencies (especially typos) from the published force field values are the sole responsibility of Marcus Martin, and I welcome feedback on how this implementation compares with other programs.
+
+
+--- References for UFF ---
+Most of the parameters for UFF are published in Table~1 of the primary reference for UFF.
+Rappe et al. 1992
+However, that paper refers to another paper (their reference 13) as submitted, that unfortunately appears never to have been published. The "GMP electronegativies" (X) in that reference are required in order to compute the bonded force constants and equilibrium distances. A partial list of the GMP Electronegativies is available in a related paper.
+Rappe and Goddard 1991
+I also managed to get ahold of the unpublished parameter files for UFF and used this to fill in the rest of the missing elements.
+
+
+--- Typos and comments for UFF ---
+There are some obvious typos in the UFF paper, and I believe there are a few subtle ones as well. Here I list places where my implementation does not completely agree with what is written in the UFF paper.
+Equation (2) of Rappe et al. 1992 is written as follows.
+rIJ = rI + rJ + rBO + rEN
+However, this method does not result in agreement with their published equilibrium bond lengths. Anthony Rappe informed me that this equation is in error and I have instead implemented the following (beginning with Version 4.4.2).
+rIJ = rI + rJ + rBO - rEN
+Equation (13) of Rappe et al. 1992 is written with some mistakes in the superscripts and subscripts. Here is the equation as implemented into Towhee (beginning with Version 4.4.2).
+KIJK = beta ( ZI* ZK* / rIK5 ) rIJ rJK [ 3 rIJ rJK (1 - Cos2(theta0) ) - rIK2 Cos( theta0 ) ]
+The final sentence before Equation (19) of Rappe et al. 1992 suggests that the two different methods for determining the inversion angle differ by a factor of Pi. These two methods actually differ by a factor of Pi/2.
+Lawrencium is named Lw6+3 in Rappe et al. 1992, but this is not consistent with the accepted abrieviation for that element. Therefore this element is listed as Lr6+3 in Towhee.
+The paragraph following Equation 17 in Rappe et al. 1992 is confusing because it refers to default values for the "first through sixth periods", but then only lists five values. Originally, I assigned these 5 values to the first through fifth periods, but after discussions with Jon Baker I now believe these values are appropriate for the second through sixth periods. Begining with verion 4.7.11 the default values for nbcoeff(12) are as follows.
+	Period 2 (Li through Ne): 2.0
+	Period 3 (Na through Ar): 1.25
+	Period 4 (K through Kr): 0.7
+	Period 5 (Rb through Xe): 0.2
+	Period 6 (Cs through Rn): 0.1
+Equation 10 and the preceding text in Rappe et al. 1992 does not accurately reflect the implementation of bending angles in UFF. For the linear case the equation should actually read
+U = KIJK/n2 [ 1 + Cos(n theta)]
+In addition, this equation is used for tetrahedral cases (3rd character is '3') when the equilibrium angle is 90.0. It is correct as written for the other cases. This change was made to Towhee starting with version 4.11.0. Previously the Equation 10 was used as written. Thanks to Jon Baker for identifying this problem.
+There are a handful of final parameters listed in Rappe et al. 1992 that allow a comparison of the Towhee implementation with their work.
+
+Towhee has an equilibrium C_R - N_R bond length of 1.3568 Å in good agreement with the statement on page 10026 of Rappe et al. 1992 that their bond length agrees well with 1.366 Å)
+Towhee has a C_R - N_R force constant of 325378.3 K = 646.59 kcal/mol that is half of the force constant of 1293 kcal/mol on page 10027 of Rappe et al. 1992. In the same sentence they reference the Weiner1986 force field and claim it has a force constant of 980 kcal/mol*Å2. The table in the appendix of Weiner et al. 1986. states a C-N force constant of 490 kcal/mol*Å2 and Equation 1 of that same paper uses a harmonic potential of form KR(R - R0)2. It appears that the UFF authors doubled all of the force constants in this sentence, perhaps to bring the force constants into agreement with the frequently used 1/2 K(R - R0)2 form of the harmonic potential.
+Towhee has a C_3 - N_R - C_R force constant of 106165.606 K = 210.97397 kcal/mol rad2 that is almost exactly twice the force constant of 105.5 kcal/mol*rad2 stated on page 10028 of Rappe et al. 1992. In the same sentence they reference the Weiner1986 force field and claim it has a force constant of 100 kcal/mol*rad2. The table in the appendix of Weiner et al. 1986. states a C-N-CT force constant of 50 kcal/mol*rad2 and Equation 1 of that same paper uses a harmonic angle potential of form Kθ(θ - θ0)2. Perhaps the UFF authors accidentally halved their reported force constant instead of doubling it for comparison with the other force fields.
+
+
+--- UFF in Towhee ---
+The official force field name for UFF in Towhee is 'UFF'. This list contains all of the atom names for use in the towhee_input file, along with a brief description taken from the UFF literature. UFF uses a five-character label to describe every element. The first two letters are the chemical symbol (appended with an underscore for single letter elements). The third character describes the geometry of the molecule as follows.
+	1: linear
+	2: trigonal
+	R: resonant
+	3: tetrahedral
+	4: square planar
+	5: trigonal bipyramidal
+	6: octahedral
+The fourth and fifth characters are there to help distinguish between otherwise similar atoms (for example, the charge state of metals and special characters for certain hydrogen and oxygen atoms). Towhee follows the UFF naming convension exactly, except for Lawrencium where the correct 'Lr' abreviation is used instead of the 'Lw' in the original paper. The element names are generally obvious (given the rules above), but a notes are added to some potentially confusing elements. Please note that the capitalization and spacing pattern is important and must be followed exactly as listed here.
+'H_'
+'H_b': hydrogen bridging between two boron atoms
+He4+4: helium
+'Li'
+'Be3+2'
+'B_3'
+'B_2'
+'C_3'
+'C_R'
+'C_2'
+'C_1'
+'N_3'
+'N_R'
+'N_2'
+'N_1'
+'O_3'
+'O_3_z': oxygen in a zeolite framework
+'O_R'
+'O_2'
+'O_1'
+'F_'
+'Ne4+4'
+'Na'
+'Mg3+2'
+'Al3'
+'Si3'
+'P_3+3'
+'P_3+5'
+'P_3+q'
+'S_3+2'
+'S_3+4'
+'S_3+6'
+'S_R'
+'S_2'
+'Cl'
+'Ar4+4'
+'K_'
+'Ca6+2'
+'Sc3+3'
+'Ti3+4'
+'V_3+5'
+'Cr6+3'
+'Mn6+2'
+'Fe3+2'
+'Fe6+2'
+'Co6+3'
+'Ni4+2'
+'Cu3+1'
+'Zn3+2'
+'Ga3+3'
+'Ge3'
+'As3+3'
+'Se3+2'
+'Br'
+'Kr4+4'
+'Rb'
+'Sr6+2'
+'Y_3+3'
+'Zr3+4'
+'Nb3+5'
+'Mo6+6'
+'Mo3+6'
+'Tc6+5'
+'Ru6+2'
+'Rh6+3'
+'Pd4+2'
+'Ag1+1'
+'Cd3+2'
+'In3+3'
+'Sn3'
+'Sb3+3'
+'Te3+2'
+'I_'
+'Xe4+4'
+'Cs'
+'Ba6+2'
+'La3+3'
+'Ce6+3'
+'Pr6+3'
+'Nd6+3'
+'Pm6+3'
+'Sm6+3'
+'Eu6+3'
+'Gd6+3'
+'Tb6+3'
+'Dy6+3'
+'Ho6+3'
+'Er6+3'
+'Tm6+3'
+'Yb6+3'
+'Lu6+3'
+'Hf3+4'
+'Ta3+5'
+'W_6+6'
+'W_3+4'
+'W_3+6'
+'Re6+5'
+'Re3+7'
+'Os6+6'
+'Ir6+3'
+'Pt4+2'
+'Au4+3'
+'Hg1+2'
+'Tl3+3'
+'Pb3'
+'Bi3+3'
+'Po3+2'
+'At'
+'Rn4+4'
+'Fr'
+'Ra6+2'
+'Ac6+3'
+'Th6+4'
+'Pa6+4'
+'U_6+4'
+'Np6+4'
+'Pu6+4'
+'Am6+4'
+'Cm6+3'
+'Bk6+3'
+'Cf6+3'
+'Es6+3'
+'Fm6+3'
+'Md6+3'
+'No6+3'
+'Lr6+3'
+
+
+--- Coulombic interactions ---
+The UFF parameters were derived without the use of point charges on the atoms and I believe the consensus of the original authors is to use this force field without any additional charges. One notable proponent of not using partial charges for UFF is A.K. Rappe who states this quite strongly in his UFF FAQ (no longer available). If you feel an overwhelming desire to assign partial charges then that is allowed in Towhee, but there is no official reference for UFF with partial charges. However, if you were so inclined then the QEq method of Rappe and Goddard (1991) might be appropriate.
+
+
+--- Improper torsions ---
+UFF uses an improper torsion (called an inversion in their paper) on any atom (I) that is bonded to exactly three other atoms (J,K, and L). The improper considers the angle each of the vectors (IJ, IK or IL) makes with a plane described by the other substituants. For example, the angle between the IJ vector and the IKL plane. Towhee options currently require the user to specify all improper torsions, but you may toggle the type to 0 to allow Towhee to automatically determine the appropriate parameters for each improper torsion.
+Return to the Towhee Capabilities web page
+
+
+Last updated: March 28, 2018 Send comments to: Marcus Martin
