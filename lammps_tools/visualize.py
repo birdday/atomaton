@@ -5,7 +5,7 @@ import matplotlib.cm
 
 
 plotting_parameters = {
-    'No' : {'cov_radius':0.0 , 'resolution':20, 'color':(1.00000, 1.00000, 1.00000)},
+    # Real Atoms
     'H'  : {'cov_radius':3.1 , 'resolution':20, 'color':(1.00000, 1.00000, 1.00000)},
     'Li' : {'cov_radius':12.8, 'resolution':20, 'color':(0.80000, 0.50200, 1.00000)},
     'B'  : {'cov_radius':8.4 , 'resolution':20, 'color':(1.00000, 0.71000, 0.71000)},
@@ -45,7 +45,11 @@ plotting_parameters = {
     'Eu' : {'cov_radius':19.8, 'resolution':20, 'color':(0.38000, 1.00000, 0.78000)},
     'Tb' : {'cov_radius':19.4, 'resolution':20, 'color':(0.18800, 1.00000, 0.78000)},
     'Dy' : {'cov_radius':19.2, 'resolution':20, 'color':(0.12200, 1.00000, 0.78000)},
-    'W'  : {'cov_radius':16.2, 'resolution':20, 'color':(0.12900, 0.58000, 0.83900)}
+    'W'  : {'cov_radius':16.2, 'resolution':20, 'color':(0.12900, 0.58000, 0.83900)},
+
+    # Pseudo-atoms
+    'No' : {'cov_radius':0.0 , 'resolution':20, 'color':(1.00000, 1.00000, 1.00000)},
+    'CH3'  : {'cov_radius':7.75 , 'resolution':20, 'color':(0.66500, 0.66500, 0.66500)}
     }
 
 
