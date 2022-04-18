@@ -1,4 +1,4 @@
-[![banner](assets/atomaton.png)]()
+[![banner](assets/atomoton.png)]()
 
 ATOMOTON
 
