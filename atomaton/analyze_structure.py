@@ -6,7 +6,7 @@ import glob
 from collections import OrderedDict
 
 
-from lammps_tools.helper import (
+from atomaton.helper import (
     mod,
     column,
     get_unique_items,

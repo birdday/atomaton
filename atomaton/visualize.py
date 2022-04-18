@@ -171,9 +171,9 @@ def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, fil
         draw_unit_cell(cell_lengths, cell_angles, cell_r=cell_r, color=cell_color, opacity=opacity)
 
 
-    # Set Camera Parameters
-    mlab.view(azimuth=azimuth, elevation=elevation, distance=distance, focalpoint=focalpoint)
-    mlab.gcf().scene.parallel_projection=parallel
+    # # Set Camera Parameters
+    # mlab.view(azimuth=azimuth, elevation=elevation, distance=distance, focalpoint=focalpoint)
+    # mlab.gcf().scene.parallel_projection=parallel
 
     # Add invisible box to keep field of view a constant size
     if parallel == True and distance != None:
@@ -184,6 +184,9 @@ def view_structure(atoms, bonds, bonds_across_boundary, show_unit_cell=True, fil
         zvals = [fp[2]-0.5*distance, fp[2], fp[2]+0.5*distance]
         xx, yy, zz = np.array([[x, y, z] for x in xvals for y in yvals for z in zvals]).transpose()
         pts = mlab.points3d(xx, yy, zz, resolution=6, scale_factor=0, color=(1.0, 1.0, 1.0))
+
+    mlab.view(azimuth=azimuth, elevation=elevation, distance=distance, focalpoint=focalpoint)
+    mlab.gcf().scene.parallel_projection=parallel
 
     # Save and/or view
     if filename != None:

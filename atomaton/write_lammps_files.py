@@ -6,11 +6,11 @@ import glob
 from collections import OrderedDict
 
 
-from lammps_tools.helper import (get_unique_items)
+from atomaton.helper import (get_unique_items)
 
 
 def get_masses():
-    from lammps_tools.forcefields.atoms import MASS
+    from atomaton.forcefields.atoms import MASS
 
     return MASS
 

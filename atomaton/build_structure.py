@@ -4,7 +4,7 @@ import copy
 import numpy as np
 
 
-from lammps_tools.helper import (
+from atomaton.helper import (
     mod,
     get_unique_items,
     get_center_of_positions,
