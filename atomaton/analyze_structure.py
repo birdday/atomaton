@@ -5,7 +5,6 @@ import numpy as np
 import glob
 from collections import OrderedDict
 
-
 from atomaton.helper import (
     mod,
     column,
@@ -587,7 +586,7 @@ def bin_data(data, std_dev_tol=1, max_bins=20):
         # Create bins
         bin_size = (max_val - min_val) / n_bins
         bins = [
-            [min_val + bin_size * (i), min_val + bin_size * (i + 1)]
+            [min_val + bin_size * i, min_val + bin_size * (i + 1)]
             for i in range(n_bins)
         ]
         binned_indicies_dict = {str(val): [] for val in range(n_bins)}
@@ -596,10 +595,10 @@ def bin_data(data, std_dev_tol=1, max_bins=20):
         # Bin data points
         num_binned_points = 0
         for i in range(len(bins)):
-            min, max = bins[i]
+            min_bin, max_bin = bins[i]
             for j in range(len(data)):
                 val = data[j]
-                if val >= min and val <= max:
+                if min_bin <= val <= max_bin:
                     binned_indicies_dict[str(i)].extend([j])
                     binned_values_dict[str(i)].extend([val])
                     num_binned_points += 1
@@ -638,10 +637,10 @@ def bin_data(data, std_dev_tol=1, max_bins=20):
 
         # Check if converged
         convergence_status = np.all([std_dev <= std_dev_tol for std_dev in std_devs])
-        if convergence_status == True:
+        if convergence_status:
             return binned_indicies_dict, binned_values_dict
         elif n_bins >= max_bins:
-            print("Warning: Did not successfully parition data.")
+            print("Warning: Did not successfully partition data.")
             return binned_indicies_dict, binned_values_dict
 
 
@@ -666,7 +665,7 @@ def remove_atoms_outside_cell(atoms, cell_lengths):
     atom_indicies_to_del = []
     for i in range(len(atoms_copy)):
         p = atoms_copy[i].position
-        if np.all([p[i] >= 0 and p[i] <= cell_lengths[i] for i in range(3)]) == False:
+        if not np.all([0 <= p[i] <= cell_lengths[i] for i in range(3)]):
             atom_indicies_to_del.extend([i])
 
     del atoms_copy[[i for i in atom_indicies_to_del]]
