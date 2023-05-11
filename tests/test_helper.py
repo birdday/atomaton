@@ -12,9 +12,10 @@ from lammps_tools.helper import (
     get_center_of_cell,
     convert_to_fractional,
     convert_to_cartesian,
-    )
+)
+
 
 def test_center_of_cell_calculated_correctly():
-    coc = get_center_of_cell([10,10,10], [90,90,90])
-    
-    assert np.testing.assert_array_equal(coc, [5,5,5]) == None
+    coc = get_center_of_cell([10, 10, 10], [90, 90, 90])
+
+    assert np.testing.assert_array_equal(coc, [5, 5, 5]) == None
