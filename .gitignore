@@ -20,3 +20,6 @@ var/
 .installed.cfg
 *.egg
 .DS_Store
+
+# IntelliJ
+.idea/
