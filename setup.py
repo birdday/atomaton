@@ -10,6 +10,6 @@ setup(
     author_email="22bday@gmail.com",
     url="https://github.com/birdday/atomaton",
     packages=["atomaton"],
-    install_requires=["numpy", "ase", "mayavi", "imageio"],
+    install_requires=["numpy", "ase", "mayavi", "imageio", "pyqt5"],
     tests_require=["pytest"],
 )
