@@ -5,24 +5,22 @@ import pytest
 from pytest import approx
 from collections import OrderedDict
 
-from lammps_tools.helper import (
-    mod,
+from atomaton.helper import (
     get_unique_items,
     get_center_of_positions,
     get_center_of_cell,
     convert_to_fractional,
-    convert_to_cartesian,
+    convert_to_cartesian
 )
-from lammps_tools.analyze_structure import (
+from atomaton.analyze_structure import (
     calculate_distance,
     create_extended_cell,
     guess_bonds,
     guess_angles,
-    guess_dihedrals_and_impropers,
-    get_number_of_bonds_on_atom,
+    guess_dihedrals_and_impropers
 )
 
-
+# TODO: Tests are currently out of date. Update after code refactor.
 def test_ethane_atoms_properly_parsed():
     atoms = ase.io.read("tests/ethane.xyz")
 

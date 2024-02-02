@@ -2,14 +2,11 @@ import ase as ase
 from ase import Atom, Atoms, io, spacegroup, build, visualize
 import copy
 import numpy as np
-import glob
 from collections import OrderedDict
 
 from atomaton.helper import (
-    mod,
     column,
     get_unique_items,
-    convert_to_fractional,
     convert_to_cartesian,
     atom_in_atoms,
 )

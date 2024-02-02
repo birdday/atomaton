@@ -3,11 +3,6 @@ from ase import Atoms, io, spacegroup, build, visualize
 import numpy as np
 
 
-def mod(a, b):
-    remainder = a % b
-    return remainder
-
-
 def column(matrix, i):
     return [row[i] for row in matrix]
 
@@ -16,12 +11,10 @@ def get_unique_items(items):
     unique_items = []
     unique_indicies = []
 
-    index = 0
-    for item in items:
+    for i, item in enumerate(items):
         if item not in unique_items:
             unique_items.extend([item])
-            unique_indicies.extend([index])
-        index += 1
+            unique_indicies.extend([i])
 
     return unique_items, unique_indicies
 
@@ -49,37 +42,11 @@ def convert_to_fractional(positions, cell_lengths, cell_angles, degrees=True):
         alpha, beta, gamma = cell_angles
 
     # Create conversion matrix
-    omega = (
-        a
-        * b
-        * c
-        * (
-            1
-            - np.cos(alpha) ** 2
-            - np.cos(beta) ** 2
-            - np.cos(gamma) ** 2
-            + 2 * np.cos(alpha) * np.cos(beta) * np.cos(gamma)
-        )
-        ** 0.5
-    )
+    omega = a * b * c * (1 - np.cos(alpha) ** 2 - np.cos(beta) ** 2 - np.cos(gamma) ** 2 + 2 * np.cos(alpha) * np.cos(beta) * np.cos(gamma))** 0.5
     cart_to_frac_matrix = [
-        [
-            1 / a,
-            -np.cos(gamma) / (a * np.sin(gamma)),
-            b
-            * c
-            * (np.cos(alpha) * np.cos(gamma) - np.cos(beta))
-            / (omega * np.sin(gamma)),
-        ],
-        [
-            0,
-            1 / (b * np.sin(gamma)),
-            a
-            * c
-            * (np.cos(beta) * np.cos(gamma) - np.cos(alpha))
-            / (omega * np.sin(gamma)),
-        ],
-        [0, 0, (a * b * np.sin(gamma)) / omega],
+        [1 / a,-np.cos(gamma) / (a * np.sin(gamma)), b * c * (np.cos(alpha) * np.cos(gamma) - np.cos(beta)) / (omega * np.sin(gamma)),],
+        [0, 1 / (b * np.sin(gamma)), a * c * (np.cos(beta) * np.cos(gamma) - np.cos(alpha)) / (omega * np.sin(gamma))],
+        [0, 0, (a * b * np.sin(gamma)) / omega]
     ]
 
     # Load and change positions
@@ -87,7 +54,7 @@ def convert_to_fractional(positions, cell_lengths, cell_angles, degrees=True):
     all_xyx_cart = np.matmul(cart_to_frac_matrix, all_xyz.transpose())
     positions = all_xyx_cart.transpose()
 
-    return ase_atoms
+    return positions
 
 
 def convert_to_cartesian(positions, cell_lengths, cell_angles, degrees=True):
@@ -99,26 +66,10 @@ def convert_to_cartesian(positions, cell_lengths, cell_angles, degrees=True):
         alpha, beta, gamma = cell_angles
 
     # Create conversion matrix
-    omega = (
-        a
-        * b
-        * c
-        * (
-            1
-            - np.cos(alpha) ** 2
-            - np.cos(beta) ** 2
-            - np.cos(gamma) ** 2
-            + 2 * np.cos(alpha) * np.cos(beta) * np.cos(gamma)
-        )
-        ** 0.5
-    )
+    omega = a * b * c * (1 - np.cos(alpha) ** 2 - np.cos(beta) ** 2 - np.cos(gamma) ** 2 + 2 * np.cos(alpha) * np.cos(beta) * np.cos(gamma)) ** 0.5
     frac_to_cart_matrix = [
         [a, b * np.cos(gamma), c * np.cos(beta)],
-        [
-            0,
-            b * np.sin(gamma),
-            c * (np.cos(alpha) - np.cos(beta) * np.cos(gamma)) / np.sin(gamma),
-        ],
+        [0, b * np.sin(gamma), c * (np.cos(alpha) - np.cos(beta) * np.cos(gamma)) / np.sin(gamma)],
         [0, 0, omega / (a * b * np.sin(gamma))],
     ]
 
@@ -130,39 +81,29 @@ def convert_to_cartesian(positions, cell_lengths, cell_angles, degrees=True):
     return positions
 
 
-def write_pdb_with_bonds(
-    filename, atoms, bonds, spacegroup="P 1", spacegroup_number="1"
-):
+def write_pdb_with_bonds(filename, atoms, bonds, spacegroup="P 1", spacegroup_number="1"):
+
+    # Create / Open the file stream
     f = open(filename, "w")
 
+    # Write the Headers
     f.write("COMPND    UNNAMED\n")
     f.write("AUTHOR    Brian Day - LAMMPS Tools2\n")
     format = "CRYST1%9.3f%9.3f%9.3f%7.2f%7.2f%7.2f %s\n"
-
     f.write(format % (*atoms.get_cell_lengths_and_angles(), spacegroup))
 
     # Write Atoms
     format = "ATOM  %5d %4s MOL     1    %8.3f%8.3f%8.3f%6.2f%6.2f          %2s  \n"
     for atom in atoms:
-        f.write(
-            format
-            % (
-                atom.index + 1,
-                atom.symbol.upper(),
-                *atom.position,
-                1.0,
-                0.0,
-                atom.symbol,
-            )
-        )
+        f.write(format % (atom.index + 1, atom.symbol.upper(), *atom.position, 1.0, 0.0, atom.symbol))
 
     # Write Bonds
     format = "CONECT %5d %5d\n"
     for bond in bonds:
         f.write(format % (bond[0] + 1, bond[1] + 1))
 
+    # End file and close stream
     f.write("END")
-
     f.close()
 
 

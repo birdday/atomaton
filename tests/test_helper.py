@@ -5,8 +5,7 @@ import pytest
 from pytest import approx
 from collections import OrderedDict
 
-from lammps_tools.helper import (
-    mod,
+from atomaton.helper import (
     get_unique_items,
     get_center_of_positions,
     get_center_of_cell,
