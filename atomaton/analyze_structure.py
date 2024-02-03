@@ -12,6 +12,16 @@ from atomaton.helper import (
 
 
 def calculate_distance(p1, p2):
+    """Function which calculates the distance between two positions in N-dimensional space. 
+
+    Args:
+        p1 (list[float...]): position in N-dimensional space
+        p2 (list[float...]): position in N-dimensional space
+
+    Returns:
+        float: distance between two positions
+    """
+
     dist = np.sum([(p1[i] - p2[i]) ** 2 for i in range(len(p1))]) ** 0.5
 
     return dist
@@ -25,7 +35,7 @@ def _translate_and_extend(
         fractional_positions_extended,
         indicies,
         pseudo_indicies,
-        ):
+    ):
     """Function which shifts the positions of atoms in a unit cell by some given amount and extended those positions to the list of all atoms.
 
     Args:
@@ -42,6 +52,7 @@ def _translate_and_extend(
         list[list[float, float, float]]: extended list of all fractional coordinates
         list[int]: extended list of all indicies, corresponding to index of original atom
     """
+
     xt, yt, zt = fractional_shifts
     x_trans = fractional_positions[0] + xt
     y_trans = fractional_positions[1] + yt
@@ -68,6 +79,7 @@ def _extended_params_to_cell(atoms, atomtypes_extended, fractional_positions_ext
     Returns:
         Atoms: Atoms object containing the original cell parameters, but including the extended cell atoms
     """
+
     cell_params = atoms.cell.cellpar()
     cell_lengths, cell_angles = cell_params[0:3], cell_params[3::]
     cartesian_positions_extended = convert_to_cartesian(
@@ -127,25 +139,35 @@ def create_extended_cell(atoms):
 
 
 def create_extended_cell_minimal(atoms, max_bond_length=5.0):
+    """Creates a minimally extended cell to speed up O(N^2) bond check.
+
+    Args:
+        atoms (Atoms): Atoms object with cell parameters
+        max_bond_length (float, optional): Maximum possible bond length, used to determine degree to which cell is extended. Defaults to 5.0.
+
+    Raises:
+        TypeError: max_bond_length must be a single value, or dictionary of bond cutoffs.
+        ValueError: max_bond_length must be less than half the length of the shortes unit cell dimension.
+
+    Returns:
+        Atoms: minimally extended cell
     """
-    Currently implemented for only xyz periodicity.
-    # Add check if unit cell if big enough for given max bond length
-    """
+
     atoms_copy = copy.deepcopy(atoms)
     cell_x, cell_y, cell_z = atoms_copy.cell.cellpar()[0:3]
     atoms_extended = Atoms()
 
     if type(max_bond_length) == dict:
         max_bond_length = max([max(max_bond_length[key]) for key in max_bond_length])
-    elif type(max_bond_length) != int and type(max_bond_length) != float:
-        raise NameError("Invalid max_bond_length type.")
+    elif type(max_bond_length) != int or type(max_bond_length) != float:
+        raise TypeError("Invalid max_bond_length type.")
 
     if (
         max_bond_length >= 0.5 * cell_x
         or max_bond_length >= 0.5 * cell_y
         or max_bond_length >= 0.5 * cell_z
     ):
-        raise NameError("max_bond_length greater than half the cell length.")
+        raise ValueError("max_bond_length greater than half the cell length.")
 
     for atom in atoms_copy:
         px, py, pz = atom.position
@@ -228,6 +250,19 @@ def _resolve_bond_cutoffs_dict(cutoffs):
 
 
 def guess_bonds(atoms, cutoffs={"default": [0, 1.5]}):
+    """Finds the bonds in a cell of atoms, as defined by the cutoffs dict.
+
+    Args:
+        atoms (Atoms): Atoms object with cell parameters.
+        cutoffs (dict, optional): Dictionary of bond cutoffs. Keys must match atom types, separated by a -, in alphabetically order. Defaults to {"default": [0, 1.5]}.
+
+    Returns:
+        list[list[int, int]]: list of bonds, by sorted atom index.
+        list[list[str, str]]: list of bond types, sorted alphabetically by atom type.
+        list[list[int, int]]: list of bonds which cross the cell boundary, by sorted orignal atom index.
+        Atoms: list of atoms outside of the cell which are part of bonds crossing the cell.
+        list[list[int, int]]: list of bonds which cross the cell boundary, using the extended atoms index.
+    """
 
     # Prepare Atoms Object
     num_atoms = len(atoms)
@@ -286,6 +321,8 @@ def guess_bonds(atoms, cutoffs={"default": [0, 1.5]}):
     return bonds, bond_types, bonds_across_boundary, extra_atoms_for_plot, extra_bonds_for_plot
 
 
+
+# TODO: Continue updating this code... left off here.
 def guess_angles(atoms, bonds, bonds_alt):
     all_angles = []
     all_angles_alt = []
