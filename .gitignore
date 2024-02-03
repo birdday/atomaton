@@ -21,8 +21,9 @@ var/
 *.egg
 .DS_Store
 
-# IntelliJ
+# IDEs
 .idea/
+.vscode/
 
 # Jupyter Notebook
 .ipynb_checkpoints
