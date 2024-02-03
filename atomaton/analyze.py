@@ -9,6 +9,8 @@ from atomaton.helper import (
     convert_to_cartesian,
 )
 
+# N.B. ase modifies Atoms objects in place, so make a copy of the atoms object if setting any cell params in a function.
+
 
 def calculate_distance(p1, p2):
     """Function which calculates the distance between two positions in N-dimensional space. 
@@ -229,8 +231,6 @@ def create_extended_cell_minimal(atoms, max_bond_length=5.0):
             atoms_extended += Atom(atom.symbol, [px + ext_x, py + ext_y, pz + ext_z])
             pseudo_indicies.extend([i])
 
-    print(pseudo_indicies)
-
     return atoms + atoms_extended, pseudo_indicies
 
 
@@ -261,6 +261,25 @@ def _resolve_bond_cutoffs_dict(cutoffs):
     return cutoffs
 
 
+def _resolve_unit_cell(atoms, default_cell=[15., 15., 15., 90., 90., 90.]):
+    """Sets default cell if encounters a zero length unit cell.
+
+    Args:
+        atoms (Atoms): _description_
+        default_cell (list, optional): Cell Params to use if zero unit cell encountered. Defaults to [10., 10., 10., 90., 90., 90.].
+
+    Returns:
+        Atoms: Atoms object with resolved cell.
+    """
+
+    atoms_copy = copy.deepcopy(atoms)
+    cell = atoms_copy.cell.cellpar()
+    if cell[0] == 0.:
+        atoms_copy.set_cell([*default_cell])
+
+    return atoms_copy
+
+
 def guess_bonds(atoms, cutoffs={"default": [0, 1.5]}):
     """Finds the bonds in a cell of atoms, as defined by the cutoffs dict.
 
@@ -277,6 +296,7 @@ def guess_bonds(atoms, cutoffs={"default": [0, 1.5]}):
     """
 
     # Prepare Atoms Object
+    atoms = _resolve_unit_cell(atoms) # This creates a deepcopy of the atoms object.
     num_atoms = len(atoms)
     atoms_ext, pseudo_indicies = create_extended_cell_minimal(atoms)
     cutoff = _resolve_bond_cutoffs_dict(cutoffs)
@@ -358,6 +378,7 @@ def get_bonds_on_atom(atoms, bonds):
             )
 
     return bond_count, bonds_present, bonds_with
+
 
 # TODO: Continue updating this code... left off here.
 def guess_angles(atoms, bonds, bonds_alt):

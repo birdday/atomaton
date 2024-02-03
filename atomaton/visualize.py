@@ -188,7 +188,7 @@ def view_structure(
     bonds_across_boundary,
     show_unit_cell=True,
     filename=None,
-    interactive=False,
+    interactive=True,
     figure={},
     objects={},
     camera={},
