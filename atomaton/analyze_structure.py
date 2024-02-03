@@ -1,5 +1,5 @@
 import ase as ase
-from ase import Atom, Atoms, io, spacegroup, build, visualize
+from ase import Atom, Atoms
 import copy
 import numpy as np
 from collections import OrderedDict
@@ -18,69 +18,73 @@ def calculate_distance(p1, p2):
     return dist
 
 
-def create_extended_cell(atoms, mol_ids, periodic="xyz"):
-    atoms_copy = copy.deepcopy(atoms)
-    all_atomtypes = atoms_copy.get_chemical_symbols()
-    all_xyz_frac = atoms_copy.get_scaled_positions().transpose()
-    all_indicies = [atom.index for atom in atoms_copy]
+def _translate_and_extend(
+        fractional_shifts,
+        atomtpyes,
+        atomtypes_extended,
+        fractional_positions,
+        fractional_positions_extended,
+        indicies,
+        pseudo_indicies,
+        ):
+    xt, yt, zt = fractional_shifts
+    x_trans = fractional_positions[0] + xt
+    y_trans = fractional_positions[1] + yt
+    z_trans = fractional_positions[2] + zt
+    fractional_positions_translated = np.array(
+        [x_trans, y_trans, z_trans]
+    ).transpose()
 
-    atom_types_extended = []
-    atom_positions_extended = []
-    pseudo_indicies = []
-    mol_ids_extended = []
+    atomtypes_extended.extend(atomtpyes)
+    fractional_positions_extended.extend(fractional_positions_translated)
+    pseudo_indicies.extend(indicies)
 
-    trans = [0, -1, 1]
-    # Develop better strategy for this section, else is unecessarily long - recursion??
-    if periodic == "xyz":
-        for xt in trans:
-            for yt in trans:
-                for zt in trans:
-                    x_trans = all_xyz_frac[0] + xt
-                    y_trans = all_xyz_frac[1] + yt
-                    z_trans = all_xyz_frac[2] + zt
-                    atom_positions_translated = np.array(
-                        [x_trans, y_trans, z_trans]
-                    ).transpose()
+    return atomtypes_extended, fractional_positions_extended, pseudo_indicies
 
-                    atom_types_extended.extend(all_atomtypes)
-                    atom_positions_extended.extend(atom_positions_translated)
-                    pseudo_indicies.extend(all_indicies)
-                    mol_ids_extended.extend(mol_ids)
 
-    elif periodic == "xy":
-        zt = 0
-        for xt in trans:
-            for yt in trans:
-                x_trans = all_xyz_frac[0] + xt
-                y_trans = all_xyz_frac[1] + yt
-                z_trans = all_xyz_frac[2] + zt
-                atom_positions_translated = np.array(
-                    [x_trans, y_trans, z_trans]
-                ).transpose()
-
-                atom_types_extended.extend(all_atomtypes)
-                atom_positions_extended.extend(atom_positions_translated)
-                pseudo_indicies.extend(all_indicies)
-                mol_ids_extended.extend(mol_ids)
-
-    elif periodic == None:
-        atom_types_extended = all_atomtypes
-        atom_positions_extended = all_xyz_frac.transpose()
-        pseudo_indicies = all_indicies
-        mol_ids_extended = mol_ids
-
-    else:
-        raise NameError("Unsupported or invalid periodicity.")
-
-    cell_params = atoms_copy.get_cell_lengths_and_angles()
+def _extended_params_to_cell(atoms, atomtypes_extended, fractional_positions_extended):
+    cell_params = atoms.cell.cellpar()
     cell_lengths, cell_angles = cell_params[0:3], cell_params[3::]
-    atom_positions_extended = convert_to_cartesian(
-        atom_positions_extended, cell_lengths, cell_angles, degrees=True
+    cartesian_positions_extended = convert_to_cartesian(
+        fractional_positions_extended, cell_lengths, cell_angles, degrees=True
     )
-    atoms_extended = Atoms(atom_types_extended, atom_positions_extended)
-    atoms_extended.set_cell([*cell_lengths, *cell_angles])
+    extended_cell = Atoms(atomtypes_extended, cartesian_positions_extended)
+    extended_cell.set_cell([*cell_lengths, *cell_angles])
 
-    return atoms_extended, mol_ids_extended, pseudo_indicies
+    return extended_cell
+
+
+def create_extended_cell(atoms):
+    # This can definitely be done natively by ase.build.make_supercell, but was fun to write. Consider replacing if faster, which it probably is...
+    # Get atoms information
+    atomtpyes = atoms.get_chemical_symbols()
+    fractional_positions = atoms.get_scaled_positions().transpose()
+    indicies = [atom.index for atom in atoms]
+
+    # Initialize extended cell arrays
+    atomtypes_extended = []
+    fractional_positions_extended = []
+    pseudo_indicies = []
+
+    # Get extended cell parameters
+    trans = [0, -1, 1]
+    for xt in trans:
+        for yt in trans:
+            for zt in trans:
+                _translate_and_extend(
+                    [xt, yt, zt],
+                    atomtpyes,
+                    atomtypes_extended,
+                    fractional_positions,
+                    fractional_positions_extended,
+                    indicies,
+                    pseudo_indicies,
+                    )
+
+    # Convert params into Atoms object
+    extended_cell = _extended_params_to_cell(atoms, atomtypes_extended, fractional_positions_extended)
+
+    return extended_cell, pseudo_indicies
 
 
 def create_extended_cell_minimal(atoms, max_bond_length=5.0, periodic="xyz"):
@@ -157,37 +161,35 @@ def create_extended_cell_minimal(atoms, max_bond_length=5.0, periodic="xyz"):
     return atoms_copy + atoms_extended
 
 
-def guess_bonds(atoms_in, mol_ids, cutoff={"default": 1.5}, periodic="xyz"):
-    # Prepare Atoms Object
-    atoms = copy.deepcopy(atoms_in)
-    atoms_out = copy.deepcopy(atoms)
-    atoms_ext, mol_ids_ext, pseudo_indicies = create_extended_cell(
-        atoms, mol_ids, periodic=periodic
-    )
+def _resolve_bond_cutoffs_dict(cutoffs):
 
-    # Check Cutoff Dictionary
-    for key in cutoff:
-        if len(cutoff[key]) == 1:
-            cutoff[key] = [0, cutoff[key]]
-        elif len(cutoff[key]) > 2:
+    for key, value in cutoffs.items():
+        if len(value) == 1:
+            cutoffs[key] = [0, value]
+        elif len(value) > 2:
             raise NameError("Invalid cutoff!")
 
-    if "default" not in cutoff.keys():
-        cutoff["default"] = [0, 1.5]
+    if "default" not in cutoffs.keys():
+        cutoffs["default"] = [0, 1.5]
 
-    all_bonds = []
-    all_bonds_alt = []
-    all_bond_types = []
+    return cutoffs
+
+
+def guess_bonds(atoms, mol_ids, cutoffs={"default": [0, 1.5]}):
+
+    # Prepare Atoms Object
+    num_atoms = len(atoms)
+    atoms_ext, pseudo_indicies = create_extended_cell(atoms)
+    cutoff = _resolve_bond_cutoffs_dict(cutoffs)
+
+    bonds = []
+    bond_types = []
 
     bonds_across_boundary = []
-
     extra_atoms_for_plot = Atoms()
     extra_bonds_for_plot = []
 
     for i in range(len(atoms)):
-        if i % 100 == 0:
-            print(i, "/", len(atoms))
-
         p1 = atoms[i].position
         type1 = atoms[i].symbol
 
@@ -209,37 +211,27 @@ def guess_bonds(atoms_in, mol_ids, cutoff={"default": 1.5}, periodic="xyz"):
                     and r >= cutoff["default"][0]
                     and r <= cutoff["default"][1]
                 )
-            ) and mol_ids[i] == mol_ids_ext[j]:
+            ):
                 bond = sorted(set((i, pseudo_indicies[j])))
-                bond_alt = bond
-                if bond not in all_bonds:
-                    all_bonds.extend([bond])
-                    all_bond_types.extend([sorted([type1, type2])])
-                    if j > len(atoms):
+
+                # Check if bond already found (i.e., the second time we encounter a bond crossing the cell boundary)
+                if bond not in bonds:
+                    bonds.extend([bond])
+                    bond_types.extend([sorted([type1, type2])])
+
+                    # Check if bond crosses boundary and if so, record bond to special category.
+                    if j > num_atoms:
                         bonds_across_boundary.extend([bond])
-                        truth_val, atom_to_use = atom_in_atoms(atoms_ext[j], atoms_out)
-                        if truth_val == True:
-                            bond_alt = sorted(set((i, atom_to_use.index)))
-                        else:
-                            bond_alt = sorted(set((i, len(atoms_out))))
-                            atoms_out += atoms_ext[j]
-                    all_bonds_alt.extend([bond_alt])
 
-                if j > len(atoms):
-                    extra_bonds_for_plot.extend(
-                        [[i, len(atoms) + len(extra_atoms_for_plot)]]
-                    )
+                # If bond crosses boundary, record extra atom and extra bond.
+                # Note that we do not care if the bond has already been found, since this will be a different instance of that bond with respect to the boundary it crosses.
+                # Also, we must index the extra bond slightly differently since we only record atoms as needed.
+                if j > num_atoms:
                     extra_atoms_for_plot += atoms_ext[j]
+                    # We must also subtract 1 since we extend atoms first and python uses 0 indexing. 
+                    extra_bonds_for_plot.extend([[i, num_atoms+len(extra_atoms_for_plot)-1]])
 
-    return (
-        atoms_out,
-        all_bonds,
-        all_bonds_alt,
-        all_bond_types,
-        bonds_across_boundary,
-        extra_atoms_for_plot,
-        extra_bonds_for_plot,
-    )
+    return bonds, bond_types, bonds_across_boundary, extra_atoms_for_plot, extra_bonds_for_plot
 
 
 def guess_angles(atoms, bonds, bonds_alt):
