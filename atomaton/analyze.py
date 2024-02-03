@@ -333,9 +333,35 @@ def guess_bonds(atoms, cutoffs={"default": [0, 1.5]}):
     return bonds, bond_types, bonds_across_boundary, extra_atoms_for_plot, extra_bonds_for_plot
 
 
+def get_bonds_on_atom(atoms, bonds):
+    """Gets a list of number of bonds, bond indicies, and bond types for all atoms.
+
+    Args:
+        atoms (Atoms): Collection of atoms
+        bonds (list[list[int, int]]): List of bonds for that atom set
+
+    Returns:
+        Dict[int: int]: _description_
+        Dict[int: List[int, int]]: _description_
+        Dict[int: List[str, str]]: _description_
+    """
+
+    bond_count = {i: 0 for i in range(len(atoms))}
+    bonds_present = {i: [] for i in range(len(atoms))}
+    bonds_with = {i: [] for i in range(len(atoms))}
+    for bond in bonds:
+        for index in bond:
+            bond_count[str(index)] += 1
+            bonds_present[str(index)].extend([bond])
+            bonds_with[str(index)].extend(
+                [atoms[ai].symbol for ai in bond if ai != index]
+            )
+
+    return bond_count, bonds_present, bonds_with
 
 # TODO: Continue updating this code... left off here.
 def guess_angles(atoms, bonds, bonds_alt):
+    # TODO: Need to check how angle terms which cross unit cells are defined in lammps and adjust code accordingly. 
     all_angles = []
     all_angles_alt = []
     all_angle_types = []
@@ -349,7 +375,6 @@ def guess_angles(atoms, bonds, bonds_alt):
             bond2_alt = bonds_alt[j]
 
             atoms_in_angle = sorted(set(bond1 + bond2))
-            atoms_in_angle_alt = sorted(set(bond1_alt + bond2_alt))
             if len(atoms_in_angle) == 3:
                 # Angle defined in by core atom numbers, used for calcuating dihedrals and impropers and writing lammps files
                 center_atom = sorted(set(bond1).intersection(bond2))
@@ -491,67 +516,6 @@ def guess_dihedrals_and_impropers(
         all_impropers_alt,
         all_improper_types,
     )
-
-
-def get_bonds_on_atom(atoms, bonds):
-    """Gets a list of number of bonds, bond indicies, and bond types for all atoms.
-
-    Args:
-        atoms (Atoms): Collection of atoms
-        bonds (list[list[int, int]]): List of bonds for that atom set
-
-    Returns:
-        Dict[int: int]: _description_
-        Dict[int: List[int, int]]: _description_
-        Dict[int: List[str, str]]: _description_
-    """
-
-    bond_count = {i: 0 for i in range(len(atoms))}
-    bonds_present = {i: [] for i in range(len(atoms))}
-    bonds_with = {i: [] for i in range(len(atoms))}
-    for bond in bonds:
-        for index in bond:
-            bond_count[str(index)] += 1
-            bonds_present[str(index)].extend([bond])
-            bonds_with[str(index)].extend(
-                [atoms[ai].symbol for ai in bond if ai != index]
-            )
-
-    return bond_count, bonds_present, bonds_with
-
-
-def update_bond_or_dihedral_types(all_bonds, ff_atom_types):
-    bond_types = [[ff_atom_types[index] for index in bond] for bond in all_bonds]
-    return bond_types
-
-
-def update_angle_or_improper_types(all_angles, ff_atom_types):
-    angle_types = [
-        [ff_atom_types[index] for index in angle[-1]] for angle in all_angles
-    ]
-    return angle_types
-
-
-def sort_bond_angle_dihedral_type_list(all_types):
-    if len(all_types[0]) == 2:
-        for i in range(len(all_types)):
-            all_types[i] = sorted(all_types[i])
-
-    else:
-        for i in range(len(all_types)):
-            if [all_types[i][0], all_types[i][-1]] != sorted(
-                [all_types[i][0], all_types[i][-1]]
-            ):
-                all_types[i] = all_types[i][::-1]
-
-    return all_types
-
-
-def sort_improper_type_list(all_types):
-    for i in range(len(all_types)):
-        all_types[i][1::] = sorted(all_types[i][1::])
-
-    return all_types
 
 
 def get_bond_properties(atoms, bonds, bond_types):
