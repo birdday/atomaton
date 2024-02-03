@@ -8,7 +8,6 @@ from atomaton.helper import (
     column,
     get_unique_items,
     convert_to_cartesian,
-    atom_in_atoms,
 )
 
 
@@ -27,6 +26,22 @@ def _translate_and_extend(
         indicies,
         pseudo_indicies,
         ):
+    """Function which shifts the positions of atoms in a unit cell by some given amount and extended those positions to the list of all atoms.
+
+    Args:
+        fractional_shifts (list[float, float, float]): Amount by which to shift the fractional coordinates of the atoms
+        atomtpyes (list[str]): list of original atom types.
+        atomtypes_extended (list[str]): list of extended atom types
+        fractional_positions (list[list[float, float, float]]): list of original fractional positions
+        fractional_positions_extended (list[list[float, float, float]]): list of all fractional positions
+        indicies (list[int]): list of original atom indicies
+        pseudo_indicies (list[int]): list of all atom indicies, corresponding to atom in original cell
+
+    Returns:
+        list[str]: extended list of all atom types
+        list[list[float, float, float]]: extended list of all fractional coordinates
+        list[int]: extended list of all indicies, corresponding to index of original atom
+    """
     xt, yt, zt = fractional_shifts
     x_trans = fractional_positions[0] + xt
     y_trans = fractional_positions[1] + yt
@@ -43,6 +58,16 @@ def _translate_and_extend(
 
 
 def _extended_params_to_cell(atoms, atomtypes_extended, fractional_positions_extended):
+    """Takes parameters for extended cell and concerts it to an Atoms object with appropriate cell parameters and positions.
+
+    Args:
+        atoms (Atoms): Atoms object with original cell parameters
+        atomtypes_extended (list[str]): array of all the new atom types
+        fractional_positions_extended (list[list[float, float, float]]): fractional coordinates of all atoms in the extended cell
+
+    Returns:
+        Atoms: Atoms object containing the original cell parameters, but including the extended cell atoms
+    """
     cell_params = atoms.cell.cellpar()
     cell_lengths, cell_angles = cell_params[0:3], cell_params[3::]
     cartesian_positions_extended = convert_to_cartesian(
@@ -55,7 +80,21 @@ def _extended_params_to_cell(atoms, atomtypes_extended, fractional_positions_ext
 
 
 def create_extended_cell(atoms):
-    # This can definitely be done natively by ase.build.make_supercell, but was fun to write. Consider replacing if faster, which it probably is...
+    """Creates a 3x3x3 supercell of atoms, along with pseudo indicies of the new atoms which matches the index of the original atom.
+
+    N.B. this can be done natively by ase using ase.build.cut or ase.build.make_supercell, and I have a wrapper for the first function
+    in build_structure.py. Would just need to make the pseudo_indicies list, which is trivial. Still, this was fun to write and is fast enough, so I'm leaving it,
+    but could get a perfromance boost out of the (complied in C?) ase functions.
+    Also, the built in functions modify the cell parameters, so these would need to be reset.
+
+    Args:
+        atoms (Atoms): ase Atoms object with cell parameters.
+
+    Returns:
+        Atoms: ase Atoms object with the atoms of the 3x3x3 cell, but the original cell parameters
+        list[int]: index of the atom corresponding to the original unit cell
+    """
+
     # Get atoms information
     atomtpyes = atoms.get_chemical_symbols()
     fractional_positions = atoms.get_scaled_positions().transpose()
@@ -87,7 +126,7 @@ def create_extended_cell(atoms):
     return extended_cell, pseudo_indicies
 
 
-def create_extended_cell_minimal(atoms, max_bond_length=5.0, periodic="xyz"):
+def create_extended_cell_minimal(atoms, max_bond_length=5.0):
     """
     Currently implemented for only xyz periodicity.
     # Add check if unit cell if big enough for given max bond length
@@ -162,12 +201,25 @@ def create_extended_cell_minimal(atoms, max_bond_length=5.0, periodic="xyz"):
 
 
 def _resolve_bond_cutoffs_dict(cutoffs):
+    """Function which validates the dictionary of bond types. If "default" not included, will be added with value of [0, 1.5].
+
+    TODO: Add check that key is valid.
+
+    Args:
+        cutoffs (dict): Dictionary of atomType-atomType: [min, max] bond distances in angstrom.
+
+    Raises:
+        ValueError: Cutoff must be a single value or an array of two numbers.
+
+    Returns:
+        dict: dictionary of bond cutoffs, with single values updated to [0, value] and default added.
+    """
 
     for key, value in cutoffs.items():
         if len(value) == 1:
             cutoffs[key] = [0, value]
-        elif len(value) > 2:
-            raise NameError("Invalid cutoff!")
+        if len(value) > 2:
+            raise ValueError("Invalid cutoff!")
 
     if "default" not in cutoffs.keys():
         cutoffs["default"] = [0, 1.5]
@@ -175,7 +227,7 @@ def _resolve_bond_cutoffs_dict(cutoffs):
     return cutoffs
 
 
-def guess_bonds(atoms, mol_ids, cutoffs={"default": [0, 1.5]}):
+def guess_bonds(atoms, cutoffs={"default": [0, 1.5]}):
 
     # Prepare Atoms Object
     num_atoms = len(atoms)
