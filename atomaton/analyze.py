@@ -2,7 +2,6 @@ import ase as ase
 from ase import Atom, Atoms
 import copy
 import numpy as np
-from collections import OrderedDict
 
 from atomaton.helper import (
     column,
@@ -139,7 +138,7 @@ def create_extended_cell(atoms):
 
 
 def create_extended_cell_minimal(atoms, max_bond_length=5.0):
-    """Creates a minimally extended cell to speed up O(N^2) bond check.
+    """Creates a minimally extended cell to speed up O(N^2) bond check. This functions is O(N).
 
     Args:
         atoms (Atoms): Atoms object with cell parameters
@@ -153,13 +152,13 @@ def create_extended_cell_minimal(atoms, max_bond_length=5.0):
         Atoms: minimally extended cell
     """
 
-    atoms_copy = copy.deepcopy(atoms)
-    cell_x, cell_y, cell_z = atoms_copy.cell.cellpar()[0:3]
+    cell_x, cell_y, cell_z = atoms.cell.cellpar()[0:3]
     atoms_extended = Atoms()
+    pseudo_indicies = [i for i, _ in enumerate(atoms)]
 
     if type(max_bond_length) == dict:
         max_bond_length = max([max(max_bond_length[key]) for key in max_bond_length])
-    elif type(max_bond_length) != int or type(max_bond_length) != float:
+    elif type(max_bond_length) != int and type(max_bond_length) != float:
         raise TypeError("Invalid max_bond_length type.")
 
     if (
@@ -169,57 +168,70 @@ def create_extended_cell_minimal(atoms, max_bond_length=5.0):
     ):
         raise ValueError("max_bond_length greater than half the cell length.")
 
-    for atom in atoms_copy:
+    for i, atom in enumerate(atoms):
         px, py, pz = atom.position
         perx, pery, perz = None, None, None
+        pseudo_indicies.extend([i])
 
         # Check X
         if px >= 0 and px <= max_bond_length:
             perx = "+x"
             ext_x = cell_x
             atoms_extended += Atom(atom.symbol, [px + ext_x, py, pz])
+            pseudo_indicies.extend([i])
         if px >= cell_x - max_bond_length and px <= cell_x:
             perx = "-x"
             ext_x = -cell_x
             atoms_extended += Atom(atom.symbol, [px + ext_x, py, pz])
+            pseudo_indicies.extend([i])
 
         # Check Y
         if py >= 0 and py <= max_bond_length:
             pery = "+y"
             ext_y = cell_y
             atoms_extended += Atom(atom.symbol, [px, py + ext_y, pz])
+            pseudo_indicies.extend([i])
         if py >= cell_y - max_bond_length and py <= cell_y:
             pery = "-y"
             ext_y = -cell_y
             atoms_extended += Atom(atom.symbol, [px, py + ext_y, pz])
+            pseudo_indicies.extend([i])
 
         # Check Z
         if pz >= 0 and pz <= max_bond_length:
             perz = "+z"
             ext_z = cell_z
             atoms_extended += Atom(atom.symbol, [px, py, pz + ext_z])
+            pseudo_indicies.extend([i])
         if pz >= cell_z - max_bond_length and pz <= cell_z:
             perz = "-z"
             ext_z = -cell_z
             atoms_extended += Atom(atom.symbol, [px, py, pz + ext_z])
+            pseudo_indicies.extend([i])
 
         # Check XY
         if perx != None and pery != None:
             atoms_extended += Atom(atom.symbol, [px + ext_x, py + ext_y, pz])
+            pseudo_indicies.extend([i])
 
         # Check XZ
         if perx != None and perz != None:
             atoms_extended += Atom(atom.symbol, [px + ext_x, py, pz + ext_z])
+            pseudo_indicies.extend([i])
 
         # Check YZ
         if pery != None and perz != None:
             atoms_extended += Atom(atom.symbol, [px, py + ext_y, pz + ext_z])
+            pseudo_indicies.extend([i])
 
         # Check XYZ
         if perx != None and pery != None and perz != None:
             atoms_extended += Atom(atom.symbol, [px + ext_x, py + ext_y, pz + ext_z])
+            pseudo_indicies.extend([i])
 
-    return atoms_copy + atoms_extended
+    print(pseudo_indicies)
+
+    return atoms + atoms_extended, pseudo_indicies
 
 
 def _resolve_bond_cutoffs_dict(cutoffs):
@@ -266,7 +278,7 @@ def guess_bonds(atoms, cutoffs={"default": [0, 1.5]}):
 
     # Prepare Atoms Object
     num_atoms = len(atoms)
-    atoms_ext, pseudo_indicies = create_extended_cell(atoms)
+    atoms_ext, pseudo_indicies = create_extended_cell_minimal(atoms)
     cutoff = _resolve_bond_cutoffs_dict(cutoffs)
 
     bonds = []
@@ -482,9 +494,21 @@ def guess_dihedrals_and_impropers(
 
 
 def get_bonds_on_atom(atoms, bonds):
-    bond_count = {str(i): 0 for i in range(len(atoms))}
-    bonds_present = {str(i): [] for i in range(len(atoms))}
-    bonds_with = {str(i): [] for i in range(len(atoms))}
+    """Gets a list of number of bonds, bond indicies, and bond types for all atoms.
+
+    Args:
+        atoms (Atoms): Collection of atoms
+        bonds (list[list[int, int]]): List of bonds for that atom set
+
+    Returns:
+        Dict[int: int]: _description_
+        Dict[int: List[int, int]]: _description_
+        Dict[int: List[str, str]]: _description_
+    """
+
+    bond_count = {i: 0 for i in range(len(atoms))}
+    bonds_present = {i: [] for i in range(len(atoms))}
+    bonds_with = {i: [] for i in range(len(atoms))}
     for bond in bonds:
         for index in bond:
             bond_count[str(index)] += 1
@@ -493,7 +517,7 @@ def get_bonds_on_atom(atoms, bonds):
                 [atoms[ai].symbol for ai in bond if ai != index]
             )
 
-    return OrderedDict(bond_count), OrderedDict(bonds_present), OrderedDict(bonds_with)
+    return bond_count, bonds_present, bonds_with
 
 
 def update_bond_or_dihedral_types(all_bonds, ff_atom_types):
