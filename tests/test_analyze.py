@@ -12,7 +12,7 @@ from atomaton.helper import (
     convert_to_fractional,
     convert_to_cartesian
 )
-from atomaton.analyze_structure import (
+from atomaton.analyze import (
     calculate_distance,
     create_extended_cell,
     guess_bonds,
