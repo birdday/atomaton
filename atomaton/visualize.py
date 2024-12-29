@@ -87,9 +87,10 @@ def draw_bonds(
     atom_positions = atom_config_new.get_positions().transpose()
     x, y, z = atom_positions
 
-    connections = list(
-        tuple(bond) for bond in all_bonds if bond not in all_bonds_across_boundary
-    )
+    if all_bonds_across_boundary.size == 0:
+        connections = list(tuple(bond) for bond in all_bonds)
+    else:
+        connections = list(tuple(bond) for bond in all_bonds if bond not in all_bonds_across_boundary)
     all_pts = mlab.points3d(x, y, z, resolution=8, scale_factor=0)
     all_pts.mlab_source.dataset.lines = np.array(connections)
     tube = mlab.pipeline.tube(all_pts, tube_radius=bond_r)
