@@ -52,19 +52,19 @@ plotting_parameters = {
 }
 
 
-def draw_atoms(atom_config_new, sf=0.125, opacity=1.0):
-    atom_positions = atom_config_new.get_positions().transpose()
-
-    symbols = atom_config_new.get_chemical_symbols()
+def draw_atoms(atoms, sf=0.125, opacity=1.0):
+    indicies = atoms.indicies
+    symbols = atoms.symbols
+    positions = atoms.positions.transpose()
     unique_symbols = {symbol: [] for symbol in set(symbols)}
-    for atom in atom_config_new:
-        unique_symbols[atom.symbol].extend([atom.index])
+    for index, symbol in zip(indicies, symbols):
+        unique_symbols[symbol].extend([index])
 
     for key in unique_symbols:
         values = unique_symbols[key]
-        x = atom_positions[0][values]
-        y = atom_positions[1][values]
-        z = atom_positions[2][values]
+        x = positions[0][values]
+        y = positions[1][values]
+        z = positions[2][values]
         pts = mlab.points3d(
             x,
             y,
@@ -77,15 +77,15 @@ def draw_atoms(atom_config_new, sf=0.125, opacity=1.0):
 
 
 def draw_bonds(
-    atom_config_new,
+    atoms,
     all_bonds,
     all_bonds_across_boundary,
     bond_r=0.15,
     color=(0.4, 0.4, 0.4),
     opacity=1.0,
 ):
-    atom_positions = atom_config_new.get_positions().transpose()
-    x, y, z = atom_positions
+    positions = atoms.positions.transpose()
+    x, y, z = positions
 
     if all_bonds_across_boundary.size == 0:
         connections = list(tuple(bond) for bond in all_bonds)
@@ -272,8 +272,8 @@ def view_structure(
             opacity=opacity,
         )
     if show_unit_cell == True:
-        a, b, c, alpha, beta, gamma = atoms.get_cell_lengths_and_angles()
-        cell_lengths, cell_angles = [a, b, c], [alpha, beta, gamma]
+        cell_lengths = atoms.cell_lengths
+        cell_angles = atoms.cell_angles
         draw_unit_cell(
             cell_lengths, cell_angles, cell_r=cell_r, color=cell_color, opacity=opacity
         )

@@ -10,7 +10,7 @@ from atomaton.visualize import view_structure
 # contiguous memory blocks, which becomes inefficient as blocks become large. Use python lists then 
 # append once at the end of looping. 
 
-class Atoms():
+class Atoms:
     """Collection of Atoms, with methods for calculating bond, angle, dihedral, and improper terms, as well as other
     important simulation parameters.
 
@@ -20,10 +20,10 @@ class Atoms():
     def __init__(self):
         # Atom Info
         self.ase_atoms = ase.Atoms()
-        self.symbols = np.array([])
-        self.atomic_numbers = np.array([])
         self.indicies = np.array([])
+        self.symbols = np.array([])
         self.positions = np.array([])
+        self.atomic_numbers = np.array([])
         self.masses = np.array([])
         self.charges = np.array([])
         self.num_atoms = 0
@@ -33,7 +33,7 @@ class Atoms():
         self.cell_angles = np.array([])
         self.pbc = True
 
-        # Forcefield Terms
+        # Intramolecular Forcefield Terms
         self.forcefield = None
         self.bonds = np.array([])
         self.bond_types = np.array([])
@@ -53,9 +53,7 @@ class Atoms():
         self.extra_bonds = np.array([])
 
     @classmethod
-    def bind_from_file(cls, file):
-        ase_atoms = ase.io.read(file)
-
+    def bind_from_ase(cls, ase_atoms):
         atoms = cls()
         atoms.ase_atoms = ase_atoms
         atoms.indicies = np.array([i for i, _ in enumerate(ase_atoms)])
@@ -70,6 +68,12 @@ class Atoms():
         atoms.cell_angles = cell_lengths_and_angles[3::]
 
         return atoms
+    
+    @classmethod
+    def bind_from_file(cls, file):
+        ase_atoms = ase.io.read(file)
+
+        return cls.bind_from_ase(ase_atoms)
 
     # --- Auxilary Parameter Resolution
     @ staticmethod
@@ -407,35 +411,54 @@ class Atoms():
 
     # TODO: Refactor to use no ASE atoms
     def view_structure(self, **kwargs):
-       # Construct atoms object
-       atoms_to_plot = ase.Atoms()
-       for symbol, position in zip(self.symbols, self.positions):
-           atoms_to_plot += ase.Atom(symbol, position)
-       bonds_to_plot = self.bonds
-
-       # Update Unit Cell params
-       atoms_to_plot.set_cell(np.array([15, 15, 15, 90, 90, 90]))
-       view_structure(atoms_to_plot, bonds_to_plot, np.array([]), **kwargs) 
+        view_structure(self, self.bonds, self.boundary_bonds, **kwargs) 
 
 
+class Crystal(Atoms):
+    def __init__(self):
+        super().__init__()
+    
+    def build_supercell(self, num_cells, filename=None):
+        crystal = self.ase_atoms
+        ao, bo, co = [num_cells[0], 0, 0], [0, num_cells[1], 0], [0, 0, num_cells[2]]
+        crystal_new = ase.build.cut(
+            crystal, a=ao, b=bo, c=co, origo=(0, 0, 0), tolerance=0.001
+        )
+
+        if filename != None:
+            ase.io.write(crystal_new)
+
+        return self.bind_from_ase(crystal_new)
+
+
+# --- Intramolecular Forcefield Terms
 class Angle:
     def __init__(self, center_atom, ordered_atoms):
         self.center_atom = center_atom
         self.ordered_atoms = ordered_atoms
+
 
 class Improper:
     def __init__(self, center_atom, ordered_atoms):
         self.center_atom = center_atom
         self.ordered_atoms = ordered_atoms     
 
+
 class SimulationBox:
-    def __init__(self):
+    def __init__(self, atoms_objs):
         # Atoms
-        self.framework = None
-        self.solvent = []
-        self.molecules = []
+        self.atoms_objs = atoms_objs
 
         # Cell Params
         self.cell_lengths = []
         self.cell_angles = []
         self.pbc = True
+    
+    def _shift_bond_indicies():
+        pass
+    
+    def _insert_atoms():
+        pass
+
+    def build_supercell():
+        pass
