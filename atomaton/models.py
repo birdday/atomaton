@@ -302,6 +302,19 @@ class Atoms:
         self.improper_types = np.array(all_improper_types)
 
     # --- Other helper functions
+    def shift_atoms(self, shift):
+        self.positions += shift
+
+    def get_center_of_positions(self):
+        return self.positions.mean(axis=0)
+    
+    def center_atom_in_cell(self):
+        # TODO: Implement better math for non-cubic cells.
+        # Maybe implement a unit cell class...
+        center_of_cell = 0.5*self.cell_lengths
+        center_of_atoms = self.get_center_of_positions()
+        self.shift_atoms(center_of_cell-center_of_atoms)
+
     def create_extended_cell_minimal(self, max_bond_length=5.0):
         """Creates a minimally extended cell to speed up O(N^2) bond check. This functions is O(N).
 
@@ -409,7 +422,6 @@ class Atoms:
 
         return extended_atom_symbols, extended_atom_positions, pseudo_indicies
 
-    # TODO: Refactor to use no ASE atoms
     def view_structure(self, **kwargs):
         view_structure(self, self.bonds, self.boundary_bonds, **kwargs) 
 
