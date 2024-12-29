@@ -19,6 +19,22 @@ def get_unique_items(items):
     return unique_items, unique_indicies
 
 
+def calculate_distance(p1, p2):
+    """Function which calculates the distance between two positions in N-dimensional space. 
+
+    Args:
+        p1 (list[float...]): position in N-dimensional space
+        p2 (list[float...]): position in N-dimensional space
+
+    Returns:
+        float: distance between two positions
+    """
+
+    dist = np.sum([(p1[i] - p2[i]) ** 2 for i in range(len(p1))]) ** 0.5
+
+    return dist
+
+
 def get_center_of_positions(ase_atoms, scaled=False):
     num_atoms = len(ase_atoms)
     all_xyz = ase_atoms.get_positions()

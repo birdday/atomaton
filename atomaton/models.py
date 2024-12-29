@@ -2,6 +2,7 @@ import ase
 import copy
 import numpy as np
 
+from atomaton.helper import calculate_distance
 from atomaton.visualize import view_structure
 
 # General Notes:
@@ -477,19 +478,3 @@ class SimulationBox:
         self.cell_lengths = []
         self.cell_angles = []
         self.pbc = True
-
-
-def calculate_distance(p1, p2):
-    """Function which calculates the distance between two positions in N-dimensional space. 
-
-    Args:
-        p1 (list[float...]): position in N-dimensional space
-        p2 (list[float...]): position in N-dimensional space
-
-    Returns:
-        float: distance between two positions
-    """
-
-    dist = np.sum([(p1[i] - p2[i]) ** 2 for i in range(len(p1))]) ** 0.5
-
-    return dist

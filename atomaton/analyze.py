@@ -7,25 +7,10 @@ from atomaton.helper import (
     column,
     get_unique_items,
     convert_to_cartesian,
+    calculate_distance
 )
 
 # N.B. ase modifies Atoms objects in place, so make a copy of the atoms object if setting any cell params in a function.
-
-
-def calculate_distance(p1, p2):
-    """Function which calculates the distance between two positions in N-dimensional space. 
-
-    Args:
-        p1 (list[float...]): position in N-dimensional space
-        p2 (list[float...]): position in N-dimensional space
-
-    Returns:
-        float: distance between two positions
-    """
-
-    dist = np.sum([(p1[i] - p2[i]) ** 2 for i in range(len(p1))]) ** 0.5
-
-    return dist
 
 
 def _translate_and_extend(
