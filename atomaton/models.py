@@ -309,9 +309,8 @@ class Atoms:
         return self.positions.mean(axis=0)
     
     def center_atom_in_cell(self):
-        # TODO: Implement better math for non-cubic cells.
-        # Maybe implement a unit cell class...
-        center_of_cell = 0.5*self.cell_lengths
+        unit_cell = UnitCell(self.cell_lengths, self.cell_angles)
+        center_of_cell = unit_cell.get_center_of_cell()
         center_of_atoms = self.get_center_of_positions()
         self.shift_atoms(center_of_cell-center_of_atoms)
 
@@ -441,6 +440,42 @@ class Crystal(Atoms):
             ase.io.write(crystal_new)
 
         return self.bind_from_ase(crystal_new)
+
+
+class UnitCell:
+    def __init__(self, cell_lengths, cell_angles, spacegroup='P1'):
+        self.cell_lengths = cell_lengths
+        self.cell_angles =  cell_angles
+        self.spacegroup = spacegroup
+    
+    def get_center_of_cell(self):
+        a, b, c = self.cell_lengths
+        alpha, beta, gamma = np.deg2rad(self.cell_angles)
+
+        omega = (
+            a
+            * b
+            * c
+            * (
+                1
+                - np.cos(alpha) ** 2
+                - np.cos(beta) ** 2
+                - np.cos(gamma) ** 2
+                + 2 * np.cos(alpha) * np.cos(beta) * np.cos(gamma)
+            )
+            ** 0.5
+        )
+        frac_to_cart_matrix = [
+            [a, b * np.cos(gamma), c * np.cos(beta)],
+            [
+                0,
+                b * np.sin(gamma),
+                c * (np.cos(alpha) - np.cos(beta) * np.cos(gamma)) / np.sin(gamma),
+            ],
+            [0, 0, omega / (a * b * np.sin(gamma))],
+        ]
+
+        return np.matmul(frac_to_cart_matrix, np.array([0.5, 0.5, 0.5]))
 
 
 # --- Intramolecular Forcefield Terms
