@@ -221,7 +221,6 @@ class Atoms():
         self.angles = np.array([Angle(*all_angles[index]) for index in sorted_indicies])
         self.angle_types = np.array([all_angle_types[index] for index in sorted_indicies])
 
-    # TODO: Refactor to use no ASE atoms
     def calculate_dihedrals_and_impropers(self, improper_tol=0.1):
         atom_symbols = self.symbols
         atoms_positions = self.positions
