@@ -2,7 +2,7 @@ import ase
 import copy
 import numpy as np
 
-from atomaton.helper import calculate_distance
+from atomaton.helper import calculate_distance, column
 from atomaton.visualize import view_structure
 
 # General Notes:
@@ -38,8 +38,11 @@ class Atoms():
         self.bonds = np.array([])
         self.bond_types = np.array([])
         self.angles = np.array([])
+        self.angle_types = np.array([])
         self.dihedrals = np.array([])
+        self.dihedral_types = np.array([])
         self.impropers = np.array([])
+        self.impropers_types = np.array([])
 
         # Special Bond Parameters
         self.boundary_bonds = np.array([])
@@ -181,26 +184,23 @@ class Atoms():
         self.extra_atoms_positions = np.array(extra_atom_positions)
         self.extra_bonds = np.array(extra_bonds)
  
-    # TODO: Refactor to use no ASE atoms
     def calculate_angles(self):
-        atoms = self.atoms
+        # TODO: Need to check how angle terms which cross unit cells are defined in lammps and adjust code accordingly.
+        # TODO: Include more advanced angle dict like cutoffs.
+        num_atoms = self.num_atoms
+        atom_symbols = self.symbols
         bonds =  self.bonds
-        bonds_alt = self.bond_alt
 
-        # TODO: Need to check how angle terms which cross unit cells are defined in lammps and adjust code accordingly. 
         all_angles = []
-        all_angles_alt = []
         all_angle_types = []
 
         for i in range(len(bonds)):
-            bond1 = bonds[i]
-            bond1_alt = bonds_alt[i]
-
+            bond1 = set(bonds[i])
+            
             for j in range(i + 1, len(bonds)):
-                bond2 = bonds[j]
-                bond2_alt = bonds_alt[j]
+                bond2 = set(bonds[j])
 
-                atoms_in_angle = sorted(set(bond1 + bond2))
+                atoms_in_angle = sorted(bond1.union(bond2))
                 if len(atoms_in_angle) == 3:
                     # Angle defined in by core atom numbers, used for calcuating dihedrals and impropers and writing lammps files
                     center_atom = sorted(set(bond1).intersection(bond2))
@@ -208,68 +208,43 @@ class Atoms():
                     ordered_atoms_in_angle = copy.deepcopy(end_atoms)
                     ordered_atoms_in_angle.insert(1, *center_atom)
                     ordered_atom_types_in_angle = [
-                        atoms[index].symbol for index in end_atoms
+                        atom_symbols[index] for index in end_atoms
                     ]
                     ordered_atom_types_in_angle.insert(
-                        1, *[atoms[index].symbol for index in center_atom]
+                        1, *[atom_symbols[index] for index in center_atom]
                     )
 
                     all_angles.extend([[*center_atom, ordered_atoms_in_angle]])
                     all_angle_types.extend([ordered_atom_types_in_angle])
 
-                    # Angle defined by extended atom numbers, used for calculating angle properties
-                    # Is this missing a condition for center atom not in either bond??
-                    if center_atom[0] in bond1_alt and center_atom[0] in bond2_alt:
-                        center_atoms = center_atom
-                    elif center_atom[0] in bond1_alt:
-                        bond2_center_atom = [i for i in bond2_alt if i >= len(atoms)]
-                        center_atoms = center_atom + bond2_center_atom
-                    elif center_atom[0] in bond2_alt:
-                        bond1_center_atom = [i for i in bond1_alt if i >= len(atoms)]
-                        center_atoms = center_atom + bond1_center_atom
-                    else:
-                        center_atoms = [i for i in bond1_alt if i >= len(atoms)] + [
-                            i for i in bond2_alt if i >= len(atoms)
-                        ]
-                    all_angles_alt.extend([[center_atoms, [bond1_alt, bond2_alt]]])
-
         sorted_indicies = np.argsort(column(all_angles, 0))
-        all_angles_sorted = [all_angles[index] for index in sorted_indicies]
-        all_angles_alt_sorted = [all_angles_alt[index] for index in sorted_indicies]
-        all_angle_types_sorted = [all_angle_types[index] for index in sorted_indicies]
-
-        return all_angles_sorted, all_angles_alt_sorted, all_angle_types_sorted
+        self.angles = np.array([Angle(*all_angles[index]) for index in sorted_indicies])
+        self.angle_types = np.array([all_angle_types[index] for index in sorted_indicies])
 
     # TODO: Refactor to use no ASE atoms
     def calculate_dihedrals_and_impropers(self, improper_tol=0.1):
-        atom_symbols = self.atom_symbols
-        atoms_positions = self.atom_positions
+        atom_symbols = self.symbols
+        atoms_positions = self.positions
         bonds = self.bonds
-        bonds_alt = self.bonds_alt
-        angles = self.angles
-        angles_alt = self.angles_alt
+        center_atoms = [angle.center_atom for angle in self.angles]
+        angles = [angle.ordered_atoms for angle in self.angles]
 
         all_dihedrals = []
-        all_dihedrals_alt = []
         all_dihedral_types = []
         all_impropers = []
-        all_impropers_alt = []
         all_improper_types = []
 
         for i in range(len(angles)):
-            center_atom = angles[i][0]
-            angle = angles[i][1]
-            angle_alt = angles_alt[i][1]
+            center_atom = center_atoms[i]
+            angle = set(angles[i])
 
             for j in range(len(bonds)):
-                bond = bonds[j]
-                bond_alt = bonds_alt[j]
-                atoms_in_group = sorted(list(set(angle + bond)))
+                bond = set(bonds[j])
+                atoms_in_group = sorted(angle.union(bond))
                 shared_atom = sorted(set(angle).intersection(bond))
 
+                # Dihedral Terms
                 if len(atoms_in_group) == 4 and shared_atom != [center_atom]:
-                    # all_dihedrals.extend([atoms_in_group])
-
                     ordered_atoms = list(
                         set(angle).difference([center_atom]).difference(shared_atom)
                     )
@@ -280,11 +255,11 @@ class Atoms():
                     if ordered_atoms[0] > ordered_atoms[-1]:
                         ordered_atoms.reverse()
                     all_dihedrals.extend([ordered_atoms])
-                    all_dihedrals_alt.extend([angle_alt + [bond_alt]])
 
-                    ordered_atom_types = [atoms[index].symbol for index in ordered_atoms]
+                    ordered_atom_types = [atom_symbols[index] for index in ordered_atoms]
                     all_dihedral_types.extend([ordered_atom_types])
 
+                # Improper Terms
                 if len(atoms_in_group) == 4 and shared_atom == [center_atom]:
                     # Impropers should lie approxiamtely in the same plane
                     ordered_atoms = set(copy.deepcopy(atoms_in_group))
@@ -293,14 +268,10 @@ class Atoms():
 
                     # Create two vectors from non-central points
                     # This method likely needs to use alt atom positions...
-                    pc = atoms[center_atom].position
-                    p0 = atoms[ordered_atoms[0]].position
-                    v01 = (
-                        atoms[ordered_atoms[1]].position - atoms[ordered_atoms[0]].position
-                    )
-                    v02 = atoms[ordered_atoms[2]].position = atoms[
-                        ordered_atoms[0]
-                    ].position
+                    pc = atoms_positions[center_atom]
+                    p0 = atoms_positions[ordered_atoms[0]]
+                    v01 = atoms_positions[ordered_atoms[1]] - atoms_positions[ordered_atoms[0]]
+                    v02 = atoms_positions[ordered_atoms[2]] - atoms_positions[ordered_atoms[0]]
                     a, b, c = np.cross(v01, v02)
                     d = -1 * (a * p0[0] + b * p0[1] + c * p0[2])
                     num, den = (
@@ -317,35 +288,15 @@ class Atoms():
                             [[center_atom, [center_atom, *sorted(ordered_atoms)]]]
                         )
                         ordered_atom_types = sorted(
-                            atoms[index].symbol for index in ordered_atoms
+                            atom_symbols[index] for index in ordered_atoms
                         )
-                        ordered_atom_types.insert(0, atoms[center_atom].symbol)
+                        ordered_atom_types.insert(0, atom_symbols[center_atom])
                         all_improper_types.extend([ordered_atom_types])
 
-                        if center_atom in angle_alt:
-                            bond_center_atom = [i for i in bond_alt if i >= len(atoms)]
-                            all_impropers_alt.extend(
-                                [[[center_atom] + bond_center_atom, angle_alt + [bond_alt]]]
-                            )
-                        elif center_atom in bond_alt:
-                            angle_center_atom = [i for i in angle_alt[0] if i >= len(atoms)]
-                            all_impropers_alt.extend(
-                                [
-                                    [
-                                        [center_atom] + angle_center_atom,
-                                        angle_alt + [bond_alt],
-                                    ]
-                                ]
-                            )
-
-        return (
-            all_dihedrals,
-            all_dihedrals_alt,
-            all_dihedral_types,
-            all_impropers,
-            all_impropers_alt,
-            all_improper_types,
-        )
+        self.dihedrals = np.array(all_dihedrals)
+        self.dihedral_types = np.array(all_dihedral_types)
+        self.impropers = np.array(all_impropers)
+        self.improper_types = np.array(all_improper_types)
 
     # --- Other helper functions
     def create_extended_cell_minimal(self, max_bond_length=5.0):
@@ -466,6 +417,17 @@ class Atoms():
        # Update Unit Cell params
        atoms_to_plot.set_cell(np.array([15, 15, 15, 90, 90, 90]))
        view_structure(atoms_to_plot, bonds_to_plot, np.array([]), **kwargs) 
+
+
+class Angle:
+    def __init__(self, center_atom, ordered_atoms):
+        self.center_atom = center_atom
+        self.ordered_atoms = ordered_atoms
+
+class Improper:
+    def __init__(self, center_atom, ordered_atoms):
+        self.center_atom = center_atom
+        self.ordered_atoms = ordered_atoms     
 
 class SimulationBox:
     def __init__(self):
