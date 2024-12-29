@@ -17,21 +17,26 @@ class Atoms:
     Based on (and uses some of) ASE atoms object. Reimplementing is for ease of control, and paedegogical exercise.
     """
     # --- Initialization Methods
-    def __init__(self):
+    def __init__(self, symbols=np.array([]), positions=np.array([])):
+        assert(len(symbols) == len(positions))
+
+        # Minimall Required / Calculated Atom Info
+        self.num_atoms = len(symbols)
+        self.indicies = np.array([i for i in range(self.num_atoms)])
+        self.symbols = symbols
+        self.positions = positions
+
         # Atom Info
+        self.label = ""
+        self.id = 0
         self.ase_atoms = ase.Atoms()
-        self.indicies = np.array([])
-        self.symbols = np.array([])
-        self.positions = np.array([])
         self.atomic_numbers = np.array([])
         self.masses = np.array([])
         self.charges = np.array([])
-        self.num_atoms = 0
 
         # Cell Params
         self.cell_lengths = np.array([])
         self.cell_angles = np.array([])
-        self.pbc = True
 
         # Intramolecular Forcefield Terms
         self.forcefield = None
@@ -54,14 +59,13 @@ class Atoms:
 
     @classmethod
     def bind_from_ase(cls, ase_atoms):
-        atoms = cls()
+        symbols = ase_atoms.get_chemical_symbols()
+        positions = ase_atoms.get_positions()
+
+        atoms = cls(symbols, positions)
         atoms.ase_atoms = ase_atoms
-        atoms.indicies = np.array([i for i, _ in enumerate(ase_atoms)])
-        atoms.symbols = ase_atoms.get_chemical_symbols()
         atoms.atomic_numbers = ase_atoms.get_atomic_numbers()
-        atoms.positions = ase_atoms.get_positions()
         atoms.masses = ase_atoms.get_masses()
-        atoms.num_atoms = len(ase_atoms)
 
         cell_lengths_and_angles = ase_atoms.cell.cellpar()
         atoms.cell_lengths = cell_lengths_and_angles[0:3]
@@ -119,7 +123,7 @@ class Atoms:
 
         # Prepare Atoms Object
         num_atoms = self.num_atoms
-        ase_atoms = self.ase_atoms
+        symbols, positions = self.symbols, self.positions
         ext_atom_symbols, ext_atom_positions, ext_atom_pseudo_indicies = self.create_extended_cell_minimal()
 
         # Add original atoms to extra atoms info for bond calcs.
@@ -139,8 +143,8 @@ class Atoms:
         extra_bonds = []
 
         for i in range(num_atoms):
-            p1 = ase_atoms[i].position
-            type1 = ase_atoms[i].symbol
+            p1 = positions[i]
+            type1 = symbols[i]
 
             for j in range(i + 1, num_ext_atoms):
                 p2 = ext_atom_positions[j]
@@ -421,7 +425,7 @@ class Atoms:
 
         return extended_atom_symbols, extended_atom_positions, pseudo_indicies
 
-    def view_structure(self, **kwargs):
+    def view(self, **kwargs):
         view_structure(self, self.bonds, self.boundary_bonds, **kwargs) 
 
 
@@ -446,10 +450,19 @@ class Crystal(Atoms):
 # Could move this class to another file, but feels unnecessary, but avoids circular dependencies...
 class UnitCell:
     def __init__(self, cell_lengths, cell_angles, spacegroup='P1'):
+        self._validate_cell_lengths_and_angles(cell_lengths, cell_angles)
         self.cell_lengths = cell_lengths
         self.cell_angles =  cell_angles
         self.spacegroup = spacegroup
     
+    @staticmethod
+    def _validate_cell_lengths_and_angles(cell_lengths, cell_angles):
+        assert(len(cell_lengths) == 3)
+        assert((0 < cell_lengths).all())
+        assert(len(cell_angles) == 3)
+        assert((0 < cell_lengths).all())
+        assert((180 > cell_lengths).all())
+
     def get_frac_to_cart_matrix(self):
         a, b, c = self.cell_lengths
         alpha, beta, gamma = np.deg2rad(self.cell_angles)
@@ -514,20 +527,56 @@ class Improper:
 
 
 class SimulationBox:
-    def __init__(self, atoms_objs):
+    def __init__(self):
         # Atoms
-        self.atoms_objs = atoms_objs
+        self.atoms_objs = np.array([])
 
         # Cell Params
-        self.cell_lengths = []
-        self.cell_angles = []
-        self.pbc = True
+        self.unit_cell = None
+        self.cell_lengths = np.array([])
+        self.cell_angles = np.array([])
     
-    def _shift_bond_indicies():
-        pass
+    @classmethod
+    def create_from_atoms(cls, atoms):
+        sim_box = SimulationBox()
+        sim_box.atoms_objs = np.array([atoms])
+        sim_box.cell_lengths = atoms.cell_lengths
+        sim_box.cell_angles = atoms.cell_angles
+        sim_box.unit_cell = UnitCell(sim_box.cell_lengths, sim_box.cell_angles)
+
+        return sim_box
     
-    def _insert_atoms():
-        pass
+    def insert_atoms(self, atoms, position=None):
+        # Add methods for rotation about center of postions, center of mass, and point.
+        atoms_copy = copy.deepcopy(atoms)
+        if position is not None:
+            atoms_cop = atoms_copy.get_center_of_positions()
+            atoms_copy.shift_atoms(position-atoms_cop)
+        self.atoms_objs = np.append(self.atoms_objs, atoms_copy)
+
+    def view(self):
+        all_symbols = np.array([obj.symbols for obj in self.atoms_objs]).flatten()
+        all_positions = np.array([obj.positions for obj in self.atoms_objs]).reshape(-1,3)
+        all_bonds = []
+        all_boundary_bonds = []
+
+        atom_count = 0
+        for obj in self.atoms_objs:
+            all_bonds.append(obj.bonds + atom_count)
+            all_boundary_bonds.append(obj.boundary_bonds + atom_count)
+            atom_count += obj.num_atoms
+        all_bonds = np.array(all_bonds).reshape(-1, 2)
+        all_boundary_bonds = np.array(all_boundary_bonds).reshape(-1, 2)
+
+        # TODO: View works with Atoms obj at the moment. Consider general refactor for various
+        # strucutural needs.
+        atoms_obj = Atoms(all_symbols, all_positions)
+        atoms_obj.bonds = all_bonds
+        atoms_obj.boundary_bonds = all_boundary_bonds
+        atoms_obj.cell_lengths = self.cell_lengths
+        atoms_obj.cell_angles = self.cell_angles
+        atoms_obj.view()
 
     def build_supercell():
         pass
+
