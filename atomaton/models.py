@@ -442,13 +442,15 @@ class Crystal(Atoms):
         return self.bind_from_ase(crystal_new)
 
 
+# TODO: Want to use this to draw in visualize, but also want to use visualize in Atoms.
+# Could move this class to another file, but feels unnecessary, but avoids circular dependencies...
 class UnitCell:
     def __init__(self, cell_lengths, cell_angles, spacegroup='P1'):
         self.cell_lengths = cell_lengths
         self.cell_angles =  cell_angles
         self.spacegroup = spacegroup
     
-    def get_center_of_cell(self):
+    def get_frac_to_cart_matrix(self):
         a, b, c = self.cell_lengths
         alpha, beta, gamma = np.deg2rad(self.cell_angles)
 
@@ -475,7 +477,27 @@ class UnitCell:
             [0, 0, omega / (a * b * np.sin(gamma))],
         ]
 
+        return frac_to_cart_matrix
+
+    def get_center_of_cell(self):
+        frac_to_cart_matrix = self.get_frac_to_cart_matrix()
+
         return np.matmul(frac_to_cart_matrix, np.array([0.5, 0.5, 0.5]))
+
+    def get_corners(self):
+        unit_cell_corners = np.array([
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+            [1, 1, 0],
+            [1, 0, 1],
+            [0, 1, 1],
+            [1, 1, 1],
+        ])
+        frac_to_cart_matrix = self.get_frac_to_cart_matrix()
+
+        return np.matmul(frac_to_cart_matrix, unit_cell_corners)
 
 
 # --- Intramolecular Forcefield Terms
