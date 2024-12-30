@@ -316,8 +316,131 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="section" id="analyzer-atomaton-analyze">
-<h2>Analyzer: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atomaton.analyze</span></code><a class="headerlink" href="#analyzer-atomaton-analyze" title="Permalink to this headline">#</a></h2>
+<div class="section" id="module-atomaton.analyze">
+<span id="analyzer-atomaton-analyze"></span><h2>Analyzer: <a class="reference internal" href="#module-atomaton.analyze" title="atomaton.analyze"><code class="xref py py-mod docutils literal notranslate"><span class="pre">atomaton.analyze</span></code></a><a class="headerlink" href="#module-atomaton.analyze" title="Permalink to this headline">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.bin_data">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">bin_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_dev_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.bin_data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.calculate_distance">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">calculate_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.calculate_distance" title="Permalink to this definition">#</a></dt>
+<dd><p>Function which calculates the distance between two positions in N-dimensional space.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>p1 (list[float…]): position in N-dimensional space
+p2 (list[float…]): position in N-dimensional space</p>
+</dd>
+<dt>Returns:</dt><dd><p>float: distance between two positions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.create_extended_cell">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">create_extended_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.create_extended_cell" title="Permalink to this definition">#</a></dt>
+<dd><p>Creates a 3x3x3 supercell of atoms, along with pseudo indicies of the new atoms which matches the index of the original atom.</p>
+<p>N.B. this can be done natively by ase using ase.build.cut or ase.build.make_supercell, and I have a wrapper for the first function
+in build_structure.py. Would just need to make the pseudo_indicies list, which is trivial. Still, this was fun to write and is fast enough, so I’m leaving it,
+but could get a perfromance boost out of the (complied in C?) ase functions.
+Also, the built in functions modify the cell parameters, so these would need to be reset.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>atoms (Atoms): ase Atoms object with cell parameters.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Atoms: ase Atoms object with the atoms of the 3x3x3 cell, but the original cell parameters
+list[int]: index of the atom corresponding to the original unit cell</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.create_extended_cell_minimal">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">create_extended_cell_minimal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bond_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.create_extended_cell_minimal" title="Permalink to this definition">#</a></dt>
+<dd><p>Creates a minimally extended cell to speed up O(N^2) bond check. This functions is O(N).</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>atoms (Atoms): Atoms object with cell parameters
+max_bond_length (float, optional): Maximum possible bond length, used to determine degree to which cell is extended. Defaults to 5.0.</p>
+</dd>
+<dt>Raises:</dt><dd><p>TypeError: max_bond_length must be a single value, or dictionary of bond cutoffs.
+ValueError: max_bond_length must be less than half the length of the shortes unit cell dimension.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Atoms: minimally extended cell</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.get_angle_properties">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">get_angle_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_angle_types</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.get_angle_properties" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.get_bond_properties">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">get_bond_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_types</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.get_bond_properties" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.get_bonds_on_atom">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">get_bonds_on_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.get_bonds_on_atom" title="Permalink to this definition">#</a></dt>
+<dd><p>Gets a list of number of bonds, bond indicies, and bond types for all atoms.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>atoms (Atoms): Collection of atoms
+bonds (list[list[int, int]]): List of bonds for that atom set</p>
+</dd>
+<dt>Returns:</dt><dd><p>Dict[int: int]: _description_
+Dict[int: List[int, int]]: _description_
+Dict[int: List[str, str]]: _description_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.guess_angles">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">guess_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds_alt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.guess_angles" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.guess_bonds">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">guess_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'default':</span> <span class="pre">[0,</span> <span class="pre">1.5]}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.guess_bonds" title="Permalink to this definition">#</a></dt>
+<dd><p>Finds the bonds in a cell of atoms, as defined by the cutoffs dict.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>atoms (Atoms): Atoms object with cell parameters.
+cutoffs (dict, optional): Dictionary of bond cutoffs. Keys must match atom types, separated by a -, in alphabetically order. Defaults to {“default”: [0, 1.5]}.</p>
+</dd>
+<dt>Returns:</dt><dd><p>list[list[int, int]]: list of bonds, by sorted atom index.
+list[list[str, str]]: list of bond types, sorted alphabetically by atom type.
+list[list[int, int]]: list of bonds which cross the cell boundary, by sorted orignal atom index.
+Atoms: list of atoms outside of the cell which are part of bonds crossing the cell.
+list[list[int, int]]: list of bonds which cross the cell boundary, using the extended atoms index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.guess_dihedrals_and_impropers">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">guess_dihedrals_and_impropers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds_alt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles_alt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improper_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.guess_dihedrals_and_impropers" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.remove_atoms_outside_cell">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">remove_atoms_outside_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.remove_atoms_outside_cell" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.remove_duplicate_atoms">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">remove_duplicate_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.remove_duplicate_atoms" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.split_by_property">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">split_by_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_indicies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.split_by_property" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.analyze.wrap_atoms_outside_cell">
+<span class="sig-prename descclassname"><span class="pre">atomaton.analyze.</span></span><span class="sig-name descname"><span class="pre">wrap_atoms_outside_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.analyze.wrap_atoms_outside_cell" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </div>
 </div>
 
@@ -357,7 +480,7 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analyzer-atomaton-analyze">Analyzer: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atomaton.analyze</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-atomaton.analyze">Analyzer: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atomaton.analyze</span></code></a></li>
 </ul>
   </nav></div>
 
