@@ -12,10 +12,11 @@ To use Atomaton, first install it using pip:
 
    (.venv) $ pip install atomaton
 
-Creating recipes
-----------------
 
-To retrieve a list of random ingredients,
-you can use the ``atomaton.analyze.create_extended_cell_minimal()`` function:
+Analyzer: :mod:`atomaton.analyze` 
+--------------------------------------------
 
-.. autofunction:: atomaton.analyze.create_extended_cell_minimal()
+.. automodule:: atomaton.analyze
+   :members:
+   :undoc-members:
+   :show-inheritance:
