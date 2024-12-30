@@ -124,8 +124,10 @@ class Atoms:
         # Prepare Atoms Object
         num_atoms = self.num_atoms
         symbols, positions = self.symbols, self.positions
-        ext_atom_symbols, ext_atom_positions, ext_atom_pseudo_indicies = self.create_extended_cell_minimal()
-
+        max_bond_length = np.array([val for val in cutoffs.values()]).flatten().max()
+        ext_atom_symbols, ext_atom_positions, ext_atom_pseudo_indicies = self.create_extended_cell_minimal(
+            max_bond_length=max_bond_length
+        )
         # Add original atoms to extra atoms info for bond calcs.
         ext_atom_symbols = np.append(self.symbols, ext_atom_symbols)
         ext_atom_positions = np.vstack([self.positions, ext_atom_positions])
@@ -339,7 +341,7 @@ class Atoms:
 
         if type(max_bond_length) == dict:
             max_bond_length = max([max(max_bond_length[key]) for key in max_bond_length])
-        elif type(max_bond_length) != int and type(max_bond_length) != float:
+        elif not (isinstance(max_bond_length, int) or isinstance(max_bond_length, float)):
             raise TypeError("Invalid max_bond_length type.")
 
         if (
