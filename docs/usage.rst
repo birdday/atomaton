@@ -20,3 +20,14 @@ Analyzer: :mod:`atomaton.analyze`
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. _visualization:
+
+Visualizer: :mod:`atomaton.visualize` 
+--------------------------------------------
+
+.. automodule:: atomaton.visualize
+   :members:
+   :undoc-members:
+   :show-inheritance:
