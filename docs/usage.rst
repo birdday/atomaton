@@ -24,10 +24,10 @@ Analyzer: :mod:`atomaton.analyze`
 
 .. _visualization:
 
-Visualizer: :mod:`atomaton.visualize` 
+Visualizer: :mod:`atomaton.build` 
 --------------------------------------------
 
-.. automodule:: atomaton.visualize
+.. automodule:: atomaton.build
    :members:
    :undoc-members:
    :show-inheritance:
