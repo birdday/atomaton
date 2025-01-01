@@ -21,6 +21,8 @@ jobs:
           pip install sphinx>=7.4
           pip install .
           pip install -r ./docs/requirements.txt
+          pip uninstall opencv-python
+          pip install opencv-python-headless
           sphinx-build docs ./docs/_build/html/
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
