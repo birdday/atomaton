@@ -1,6 +1,7 @@
 View structures
 =====
 
+.. _visualization:
 
 Visualizer: :mod:`atomaton.visualize` 
 --------------------------------------------

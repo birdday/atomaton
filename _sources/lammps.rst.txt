@@ -1,5 +1,7 @@
-LAMMPS Input File Generation
+LAMMPS
 =====
+
+.. _lammps:
 
 LAMMPS Input File Generation: :mod:`atomaton.write_lammps_files` 
 --------------------------------------------
