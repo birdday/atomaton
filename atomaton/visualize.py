@@ -1,9 +1,11 @@
 import imageio
+import numpy as np
+import matplotlib.cm
+
+# Trick to workout issue in sphinx-build on github pages
 import os
 if not (os.environ.get("USER") == "github-pages"):
     import mayavi.mlab as mlab
-import numpy as np
-import matplotlib.cm
 
 
 plotting_parameters = {

@@ -1,5 +1,5 @@
-View structures
-=====
+Visualize
+=========
 
 .. _visualization:
 
