@@ -129,6 +129,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="models.html">
+    Classes
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="lammps.html">
     LAMMPS
   </a>
@@ -137,7 +144,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="visualize.html">
-    View structures
+    Visualize
   </a>
 </li>
 
@@ -220,6 +227,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="models.html">
+    Classes
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="lammps.html">
     LAMMPS
   </a>
@@ -228,7 +242,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="visualize.html">
-    View structures
+    Visualize
   </a>
 </li>
 
@@ -291,9 +305,11 @@
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
@@ -301,6 +317,8 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.Angle">Angle (class in atomaton.models)</a>
+</li>
       <li>
     atomaton.analyze
 
@@ -309,14 +327,21 @@
 </li>
       </ul></li>
       <li>
+    atomaton.models
+
+      <ul>
+        <li><a href="models.html#module-atomaton.models">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
     atomaton.visualize
 
       <ul>
         <li><a href="visualize.html#module-atomaton.visualize">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     atomaton.write_lammps_files
 
@@ -324,6 +349,8 @@
         <li><a href="lammps.html#module-atomaton.write_lammps_files">module</a>
 </li>
       </ul></li>
+      <li><a href="models.html#atomaton.models.Atoms">Atoms (class in atomaton.models)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -336,19 +363,47 @@
         <li><a href="visualize.html#atomaton.visualize.bin_data">(in module atomaton.visualize)</a>
 </li>
       </ul></li>
+      <li><a href="models.html#atomaton.models.Atoms.bind_from_ase">bind_from_ase() (atomaton.models.Atoms class method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.Atoms.bind_from_file">bind_from_file() (atomaton.models.Atoms class method)</a>
+</li>
+      <li><a href="models.html#atomaton.models.Crystal.build_supercell">build_supercell() (atomaton.models.Crystal method)</a>
+
+      <ul>
+        <li><a href="models.html#atomaton.models.SimulationBox.build_supercell">(atomaton.models.SimulationBox method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.Atoms.calculate_angles">calculate_angles() (atomaton.models.Atoms method)</a>
+</li>
+      <li><a href="models.html#atomaton.models.Atoms.calculate_bonds">calculate_bonds() (atomaton.models.Atoms method)</a>
+</li>
+      <li><a href="models.html#atomaton.models.Atoms.calculate_dihedrals_and_impropers">calculate_dihedrals_and_impropers() (atomaton.models.Atoms method)</a>
+</li>
+      <li><a href="models.html#atomaton.models.Atoms.center_atom_in_cell">center_atom_in_cell() (atomaton.models.Atoms method)</a>
+</li>
       <li><a href="visualize.html#atomaton.visualize.convert_images_to_gif">convert_images_to_gif() (in module atomaton.visualize)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="usage.html#atomaton.analyze.create_extended_cell">create_extended_cell() (in module atomaton.analyze)</a>
 </li>
-      <li><a href="usage.html#atomaton.analyze.create_extended_cell_minimal">create_extended_cell_minimal() (in module atomaton.analyze)</a>
+      <li><a href="models.html#atomaton.models.Atoms.create_extended_cell_minimal">create_extended_cell_minimal() (atomaton.models.Atoms method)</a>
+
+      <ul>
+        <li><a href="usage.html#atomaton.analyze.create_extended_cell_minimal">(in module atomaton.analyze)</a>
+</li>
+      </ul></li>
+      <li><a href="models.html#atomaton.models.SimulationBox.create_from_atoms">create_from_atoms() (atomaton.models.SimulationBox class method)</a>
+</li>
+      <li><a href="models.html#atomaton.models.Crystal">Crystal (class in atomaton.models)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -376,10 +431,18 @@
 </li>
       <li><a href="usage.html#atomaton.analyze.get_bonds_on_atom">get_bonds_on_atom() (in module atomaton.analyze)</a>
 </li>
-      <li><a href="lammps.html#atomaton.write_lammps_files.get_lammps_box_parameters">get_lammps_box_parameters() (in module atomaton.write_lammps_files)</a>
+      <li><a href="models.html#atomaton.models.UnitCell.get_center_of_cell">get_center_of_cell() (atomaton.models.UnitCell method)</a>
+</li>
+      <li><a href="models.html#atomaton.models.Atoms.get_center_of_positions">get_center_of_positions() (atomaton.models.Atoms method)</a>
+</li>
+      <li><a href="models.html#atomaton.models.UnitCell.get_corners">get_corners() (atomaton.models.UnitCell method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.UnitCell.get_frac_to_cart_matrix">get_frac_to_cart_matrix() (atomaton.models.UnitCell method)</a>
+</li>
+      <li><a href="lammps.html#atomaton.write_lammps_files.get_lammps_box_parameters">get_lammps_box_parameters() (in module atomaton.write_lammps_files)</a>
+</li>
       <li><a href="lammps.html#atomaton.write_lammps_files.get_masses">get_masses() (in module atomaton.write_lammps_files)</a>
 </li>
       <li><a href="usage.html#atomaton.analyze.guess_angles">guess_angles() (in module atomaton.analyze)</a>
@@ -387,6 +450,18 @@
       <li><a href="usage.html#atomaton.analyze.guess_bonds">guess_bonds() (in module atomaton.analyze)</a>
 </li>
       <li><a href="usage.html#atomaton.analyze.guess_dihedrals_and_impropers">guess_dihedrals_and_impropers() (in module atomaton.analyze)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.Improper">Improper (class in atomaton.models)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.SimulationBox.insert_atoms">insert_atoms() (atomaton.models.SimulationBox method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -399,6 +474,8 @@
 
       <ul>
         <li><a href="usage.html#module-atomaton.analyze">atomaton.analyze</a>
+</li>
+        <li><a href="models.html#module-atomaton.models">atomaton.models</a>
 </li>
         <li><a href="visualize.html#module-atomaton.visualize">atomaton.visualize</a>
 </li>
@@ -423,13 +500,35 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.Atoms.shift_atoms">shift_atoms() (atomaton.models.Atoms method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.SimulationBox">SimulationBox (class in atomaton.models)</a>
+</li>
       <li><a href="usage.html#atomaton.analyze.split_by_property">split_by_property() (in module atomaton.analyze)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.UnitCell">UnitCell (class in atomaton.models)</a>
 </li>
   </ul></td>
 </tr></table>
 
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.Atoms.view">view() (atomaton.models.Atoms method)</a>
+
+      <ul>
+        <li><a href="models.html#atomaton.models.SimulationBox.view">(atomaton.models.SimulationBox method)</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="visualize.html#atomaton.visualize.view_structure">view_structure() (in module atomaton.visualize)</a>
 </li>
