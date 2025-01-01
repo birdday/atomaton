@@ -1,5 +1,7 @@
 import imageio
-import mayavi.mlab as mlab
+import os
+if not (os.environ.get("USER") == "github-pages"):
+    import mayavi.mlab as mlab
 import numpy as np
 import matplotlib.cm
 
