@@ -6,8 +6,9 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; Atomaton 0.1.0 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LAMMPS Input File Generation &#8212; Atomaton 0.1.0 documentation</title>
   
   
   
@@ -40,9 +41,11 @@
     <script src="_static/documentation_options.js?v=01f34227"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
-    <link rel="index" title="Index" href="#" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lammps';</script>
+    <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="View structures" href="visualize.html" />
+    <link rel="prev" title="Usage" href="usage.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -128,8 +131,8 @@
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="lammps.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
     LAMMPS Input File Generation
   </a>
 </li>
@@ -184,6 +187,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -194,10 +201,8 @@
       
       
       
-        
-      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -219,8 +224,8 @@
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="lammps.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
     LAMMPS Input File Generation
   </a>
 </li>
@@ -254,6 +259,15 @@
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -274,7 +288,31 @@
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article d-print-none"></div>
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">LAMMPS Input File Generation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
               
               
               
@@ -282,174 +320,27 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
+  <section id="lammps-input-file-generation">
+<h1>LAMMPS Input File Generation<a class="headerlink" href="#lammps-input-file-generation" title="Link to this heading">#</a></h1>
+<section id="lammps-input-file-generation-atomaton-write-lammps-files">
+<h2>LAMMPS Input File Generation: <a class="reference internal" href="#module-atomaton.write_lammps_files" title="atomaton.write_lammps_files"><code class="xref py py-mod docutils literal notranslate"><span class="pre">atomaton.write_lammps_files</span></code></a><a class="headerlink" href="#lammps-input-file-generation-atomaton-write-lammps-files" title="Link to this heading">#</a></h2>
+<dl class="py function" id="module-atomaton.write_lammps_files">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.get_lammps_box_parameters">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">get_lammps_box_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.get_lammps_box_parameters" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-<h1 id="index">Index</h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.get_masses">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">get_masses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.get_masses" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-<div class="genindex-jumpbox">
- <a href="#A"><strong>A</strong></a>
- | <a href="#B"><strong>B</strong></a>
- | <a href="#C"><strong>C</strong></a>
- | <a href="#D"><strong>D</strong></a>
- | <a href="#G"><strong>G</strong></a>
- | <a href="#M"><strong>M</strong></a>
- | <a href="#R"><strong>R</strong></a>
- | <a href="#S"><strong>S</strong></a>
- | <a href="#V"><strong>V</strong></a>
- | <a href="#W"><strong>W</strong></a>
- 
-</div>
-<h2 id="A">A</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    atomaton.analyze
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_lammps_data_file">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_lammps_data_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_atom_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_type_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_bond_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_type_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_angle_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_type_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_dihedrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_dihedral_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_impropers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_improper_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_lammps_data_file" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-      <ul>
-        <li><a href="usage.html#module-atomaton.analyze">module</a>
-</li>
-      </ul></li>
-      <li>
-    atomaton.visualize
-
-      <ul>
-        <li><a href="usage.html#module-atomaton.visualize">module</a>, <a href="visualize.html#module-atomaton.visualize">[1]</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    atomaton.write_lammps_files
-
-      <ul>
-        <li><a href="lammps.html#module-atomaton.write_lammps_files">module</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="B">B</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.analyze.bin_data">bin_data() (in module atomaton.analyze)</a>
-
-      <ul>
-        <li><a href="usage.html#atomaton.visualize.bin_data">(in module atomaton.visualize)</a>, <a href="visualize.html#atomaton.visualize.bin_data">[1]</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="C">C</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.analyze.calculate_distance">calculate_distance() (in module atomaton.analyze)</a>
-</li>
-      <li><a href="usage.html#atomaton.visualize.convert_images_to_gif">convert_images_to_gif() (in module atomaton.visualize)</a>, <a href="visualize.html#atomaton.visualize.convert_images_to_gif">[1]</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.analyze.create_extended_cell">create_extended_cell() (in module atomaton.analyze)</a>
-</li>
-      <li><a href="usage.html#atomaton.analyze.create_extended_cell_minimal">create_extended_cell_minimal() (in module atomaton.analyze)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="D">D</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.visualize.draw_atoms">draw_atoms() (in module atomaton.visualize)</a>, <a href="visualize.html#atomaton.visualize.draw_atoms">[1]</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.visualize.draw_bonds">draw_bonds() (in module atomaton.visualize)</a>, <a href="visualize.html#atomaton.visualize.draw_bonds">[1]</a>
-</li>
-      <li><a href="usage.html#atomaton.visualize.draw_unit_cell">draw_unit_cell() (in module atomaton.visualize)</a>, <a href="visualize.html#atomaton.visualize.draw_unit_cell">[1]</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="G">G</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.analyze.get_angle_properties">get_angle_properties() (in module atomaton.analyze)</a>
-</li>
-      <li><a href="usage.html#atomaton.analyze.get_bond_properties">get_bond_properties() (in module atomaton.analyze)</a>
-</li>
-      <li><a href="usage.html#atomaton.analyze.get_bonds_on_atom">get_bonds_on_atom() (in module atomaton.analyze)</a>
-</li>
-      <li><a href="lammps.html#atomaton.write_lammps_files.get_lammps_box_parameters">get_lammps_box_parameters() (in module atomaton.write_lammps_files)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="lammps.html#atomaton.write_lammps_files.get_masses">get_masses() (in module atomaton.write_lammps_files)</a>
-</li>
-      <li><a href="usage.html#atomaton.analyze.guess_angles">guess_angles() (in module atomaton.analyze)</a>
-</li>
-      <li><a href="usage.html#atomaton.analyze.guess_bonds">guess_bonds() (in module atomaton.analyze)</a>
-</li>
-      <li><a href="usage.html#atomaton.analyze.guess_dihedrals_and_impropers">guess_dihedrals_and_impropers() (in module atomaton.analyze)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="M">M</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    module
-
-      <ul>
-        <li><a href="usage.html#module-atomaton.analyze">atomaton.analyze</a>
-</li>
-        <li><a href="usage.html#module-atomaton.visualize">atomaton.visualize</a>, <a href="visualize.html#module-atomaton.visualize">[1]</a>
-</li>
-        <li><a href="lammps.html#module-atomaton.write_lammps_files">atomaton.write_lammps_files</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="R">R</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.analyze.remove_atoms_outside_cell">remove_atoms_outside_cell() (in module atomaton.analyze)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.analyze.remove_duplicate_atoms">remove_duplicate_atoms() (in module atomaton.analyze)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="S">S</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.analyze.split_by_property">split_by_property() (in module atomaton.analyze)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="V">V</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.visualize.view_structure">view_structure() (in module atomaton.visualize)</a>, <a href="visualize.html#atomaton.visualize.view_structure">[1]</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="W">W</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="usage.html#atomaton.analyze.wrap_atoms_outside_cell">wrap_atoms_outside_cell() (in module atomaton.analyze)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="lammps.html#atomaton.write_lammps_files.write_lammps_data_file">write_lammps_data_file() (in module atomaton.write_lammps_files)</a>
-</li>
-  </ul></td>
-</tr></table>
-
+</section>
+</section>
 
 
                 </article>
@@ -461,12 +352,62 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="usage.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Usage</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="visualize.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">View structures</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps-input-file-generation-atomaton-write-lammps-files">LAMMPS Input File Generation: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atomaton.write_lammps_files</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.get_lammps_box_parameters"><code class="docutils literal notranslate"><span class="pre">get_lammps_box_parameters()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.get_masses"><code class="docutils literal notranslate"><span class="pre">get_masses()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_lammps_data_file"><code class="docutils literal notranslate"><span class="pre">write_lammps_data_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/lammps.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
               
             
           </div>

@@ -22,6 +22,8 @@ Analyzer: :mod:`atomaton.analyze`
    :show-inheritance:
 
 
+.. _visualization:
+
 Visualizer: :mod:`atomaton.visualize` 
 --------------------------------------------
 
