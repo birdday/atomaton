@@ -4,7 +4,7 @@ on: push
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     permissions:
       contents: write
     steps:
@@ -22,7 +22,6 @@ jobs:
           pip install -e .
           pip install -r ./docs/requirements.txt
           pip uninstall -y pyqt5
-          pip uninstall opencv-python
           pip install opencv-python
           pip install opencv-python-headless
           sphinx-build docs ./docs/_build/html/
