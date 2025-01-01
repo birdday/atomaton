@@ -53,6 +53,13 @@ plotting_parameters = {
 
 
 def draw_atoms(atom_config_new, sf=0.125, opacity=1.0):
+    """This is draw atoms!!!
+
+    Args:
+        atom_config_new (_type_): _description_
+        sf (float, optional): _description_. Defaults to 0.125.
+        opacity (float, optional): _description_. Defaults to 1.0.
+    """
     atom_positions = atom_config_new.get_positions().transpose()
 
     symbols = atom_config_new.get_chemical_symbols()
