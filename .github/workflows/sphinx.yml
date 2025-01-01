@@ -17,7 +17,7 @@ jobs:
           python-version: "3.10"
       - name: Upgrade pip, install package, install requirements, build docs
         run: |
-          sudo apt-get install qt5-default
+          sudo apt install qtbase5-dev qt5-qmake
           pip install --upgrade pip
           pip install sphinx>=7.4
           pip install .
