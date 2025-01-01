@@ -33,7 +33,6 @@ jobs:
           pip install -r ./docs/requirements.txt
       - name: Install dependencies
         run: |
-        run: |
           set -exo pipefail
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install --upgrade pyqt5 numpy vtk pillow pytest pytest-timeout traits traitsui --only-binary="numpy,vtk"
