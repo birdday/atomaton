@@ -24,7 +24,7 @@ Analyzer: :mod:`atomaton.analyze`
 
 .. _visualization:
 
-Visualizer: :mod:`atomaton.Visualize` 
+Visualizer: :mod:`atomaton.visualize` 
 --------------------------------------------
 
 .. automodule:: atomaton.visualize
