@@ -22,6 +22,7 @@ jobs:
           pip install -e .
           pip install -r ./docs/requirements.txt
           pip uninstall -y pyqt5
+          pip install pyqt6
           pip install opencv-python
           pip install opencv-python-headless
           sphinx-build docs ./docs/_build/html/
