@@ -1,5 +1,4 @@
 import imageio
-import mayavi.mlab as mlab
 import numpy as np
 import matplotlib.cm
 
@@ -313,3 +312,7 @@ def convert_images_to_gif(filenames, filename_final=None, fps=10):
     for filename in filenames:
         images.append(imageio.imread(filename))
     imageio.mimsave(filename_final, images, fps=fps)
+
+
+# Bad hack, import at end of file so sphinx builds successfully...
+import mayavi.mlab as mlab
