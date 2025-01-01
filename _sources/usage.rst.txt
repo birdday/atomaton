@@ -13,15 +13,6 @@ To use Atomaton, first install it using pip:
    (.venv) $ pip install atomaton
 
 
-Analyzer: :mod:`atomaton.analyze` 
---------------------------------------------
-
-.. automodule:: atomaton.analyze
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 .. _visualization:
 
 Visualizer: :mod:`atomaton.visualize` 
