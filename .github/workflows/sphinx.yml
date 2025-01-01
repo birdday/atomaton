@@ -37,7 +37,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install --upgrade pyqt5 numpy vtk pillow pytest pytest-timeout traits traitsui --only-binary="numpy,vtk"
       - name: Install mayavi and tvtk
-        run: python -m pip install --no-build-isolation -v .
+        run: pip install --no-build-isolation mayavi
       - name: Test Mayavi package
         run: pytest -v --timeout=10 mayavi
       - name: Test tvtk package
