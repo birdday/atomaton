@@ -15,17 +15,16 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.10"
+      - name: Virtual Framebuffer
+        run: |
+          Xvfb :1 -screen 0 1280x1024x24 -auth localhost
+          export DISPLAY=:1
       - name: Upgrade pip, install package, install requirements, build docs
         run: |
-          sudo apt install qtbase5-dev qt5-qmake
-          sudo apt-get install libxcb-cursor0
           pip install --upgrade pip
           pip install sphinx>=7.4
           pip install .
           pip install -r ./docs/requirements.txt
-          pip install opencv-python --upgrade
-          pip install --upgrade pyqt5_tools
-          pip uninstall -y pyqt5
           sphinx-build docs ./docs/_build/html/
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
