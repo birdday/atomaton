@@ -14,6 +14,7 @@ jobs:
       TVTK_VERBOSE: "true"
       VTK_PARSER_VERBOSE: "true"
       PYTHONUNBUFFERED: "1"
+      USER: "github-pages"
 
     steps:
       - uses: actions/checkout@v4
