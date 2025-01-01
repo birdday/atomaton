@@ -7,7 +7,7 @@ Welcome to Atomaton's documentation!
 ====================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 10
    :caption: Contents:
 
 
@@ -28,6 +28,7 @@ Contents
 
    usage
    lammps
+   visualize
 
 Check out the :doc:`usage` section for further information, including how to
 :ref:`install <installation>` the project.
