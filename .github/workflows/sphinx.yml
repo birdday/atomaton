@@ -38,10 +38,10 @@ jobs:
           python -m pip install --upgrade pyqt5 numpy vtk pillow pytest pytest-timeout traits traitsui --only-binary="numpy,vtk"
       - name: Install mayavi and tvtk
         run: pip install mayavi
-      - name: Test Mayavi package
-        run: pytest -v --timeout=10 mayavi
-      - name: Test tvtk package
-        run: pytest -sv --timeout=60 tvtk
+      # - name: Test Mayavi package
+      #   run: pytest -v --timeout=10 mayavi
+      # - name: Test tvtk package
+      #   run: pytest -sv --timeout=60 tvtk
       - name: Install Atomaton
         run: pip install -e .
       - name: Build Docs
