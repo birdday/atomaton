@@ -10,20 +10,31 @@ from atomaton.visualize import view_structure
 # contiguous memory blocks, which becomes inefficient as blocks become large. Use python lists then 
 # append once at the end of looping. 
 
+# TODO: Convert to Atom/Atoms
+# TODO: Rename get methods to avoid confusion with getters/setters?
+# TODO: Add function to calculate minimal binding box. Add to calculate bonds function for atoms missing cell data.
+# TODO: RESET INDICIES FUNCTION WHICH ACCOUNTS FOR BOND INFO?
 class Atoms:
     """Collection of Atoms, with methods for calculating bond, angle, dihedral, and improper terms, as well as other
     important simulation parameters.
 
     Based on (and uses some of) ASE atoms object. Reimplementing is for ease of control, and paedegogical exercise.
     """
+    # --- Magic Methods
+    def __len__(self):
+        return self.num_atoms
+
     # --- Initialization Methods
     def __init__(self, symbols=np.array([]), positions=np.array([])):
         assert(len(symbols) == len(positions))
 
         # Minimall Required / Calculated Atom Info
+        # Numpy will use minimal number of bits possible for all arrays (i.e., cannot append 'Ar' to ['C', 'H']).
+        # To support 3 character symbols by default, we update the data type of the symbols array here.
         self.num_atoms = len(symbols)
         self.indicies = np.array([i for i in range(self.num_atoms)])
         self.symbols = symbols
+        self.symbols = self.symbols.astype("<U3")
         self.positions = positions
 
         # Atom Info
@@ -37,6 +48,7 @@ class Atoms:
         # Cell Params
         self.cell_lengths = np.array([])
         self.cell_angles = np.array([])
+        self.unit_cell = None
 
         # Intramolecular Forcefield Terms
         self.forcefield = None
@@ -57,9 +69,10 @@ class Atoms:
         self.extra_atom_positions = np.array([])
         self.extra_bonds = np.array([])
 
+    # TODO: Load Bond info when possible.
     @classmethod
     def bind_from_ase(cls, ase_atoms):
-        symbols = ase_atoms.get_chemical_symbols()
+        symbols = np.array(ase_atoms.get_chemical_symbols())
         positions = ase_atoms.get_positions()
 
         atoms = cls(symbols, positions)
@@ -70,6 +83,8 @@ class Atoms:
         cell_lengths_and_angles = ase_atoms.cell.cellpar()
         atoms.cell_lengths = cell_lengths_and_angles[0:3]
         atoms.cell_angles = cell_lengths_and_angles[3::]
+        if (atoms.cell_lengths > 0).all():
+            atoms.unit_cell = UnitCell(atoms.cell_lengths, atoms.cell_angles)
 
         return atoms
     
@@ -95,9 +110,13 @@ class Atoms:
             dict: dictionary of bond cutoffs, with single values updated to [0, value] and default added.
         """
 
+        # TODO: Enforce data types for all inputs. 
+        # Allow for AtomType-Any bonds. Split on "-" and order alphabetically..
         for key, value in cutoffs.items():
-            if len(value) == 1:
-                cutoffs[key] = [0, value]
+            if isinstance(value, int) or isinstance(value, float):
+                cutoffs[key] = [0, float(value)]
+            elif len(value) == 1:
+                cutoffs[key] = [0, float(value[0])]
             if len(value) > 2:
                 raise ValueError("Invalid cutoff!")
 
@@ -107,6 +126,7 @@ class Atoms:
         return cutoffs
 
     # --- Multibody Terms
+    # TODO: Add warning if non 0 bond data already exists. Or flag to indicate bonds calculated? but diff cutoff dicts..
     def calculate_bonds(self, cutoffs={"default": [0, 1.5]}):
         """Finds the bonds between atoms, as defined by the cutoffs dict.
 
@@ -124,14 +144,19 @@ class Atoms:
         # Prepare Atoms Object
         num_atoms = self.num_atoms
         symbols, positions = self.symbols, self.positions
+        cutoffs = self._resolve_bond_cutoffs_dict(cutoffs)
         max_bond_length = np.array([val for val in cutoffs.values()]).flatten().max()
         ext_atom_symbols, ext_atom_positions, ext_atom_pseudo_indicies = self.create_extended_cell_minimal(
             max_bond_length=max_bond_length
         )
         # Add original atoms to extra atoms info for bond calcs.
-        ext_atom_symbols = np.append(self.symbols, ext_atom_symbols)
-        ext_atom_positions = np.vstack([self.positions, ext_atom_positions])
-        ext_atom_pseudo_indicies = np.append(self.indicies, ext_atom_pseudo_indicies)
+        if not ext_atom_symbols.size == 0:
+            ext_atom_symbols = np.append(self.symbols, ext_atom_symbols)
+            ext_atom_positions = np.vstack([self.positions, ext_atom_positions])
+            ext_atom_pseudo_indicies = np.append(self.indicies, ext_atom_pseudo_indicies)
+        else:
+            ext_atom_symbols, ext_atom_positions, ext_atom_pseudo_indicies =\
+                self.symbols, self.positions, self.indicies
 
         num_ext_atoms = len(ext_atom_symbols)
         cutoff = self._resolve_bond_cutoffs_dict(cutoffs)
@@ -307,19 +332,73 @@ class Atoms:
         self.impropers = np.array(all_impropers)
         self.improper_types = np.array(all_improper_types)
 
-    # --- Other helper functions
+    # --- Atom Positioning
     def shift_atoms(self, shift):
         self.positions += shift
 
     def get_center_of_positions(self):
         return self.positions.mean(axis=0)
     
-    def center_atom_in_cell(self):
+    def center_in_cell(self):
         unit_cell = UnitCell(self.cell_lengths, self.cell_angles)
         center_of_cell = unit_cell.get_center_of_cell()
         center_of_atoms = self.get_center_of_positions()
         self.shift_atoms(center_of_cell-center_of_atoms)
 
+    def center_on_position(self, position):
+        center_of_atoms = self.get_center_of_positions()
+        self.shift_atoms(position - center_of_atoms)
+
+    # --- Metadata Calculations
+    def get_bonds_metadata(self):
+        atom_idxs = self.indicies
+        symbols = self.symbols
+        bonds = self.bonds
+
+        # Initialize Results Dicts
+        # Use dict with int keys rather than list since atom nums may be missing, deleted, etc.
+        bond_count = {i: 0 for i in atom_idxs}  # Num. of bonds per atom.
+        bonds_present = {i: [] for i in atom_idxs}  # List of bonds which include atom.
+        bonds_present_idxs = {i: [] for i in atom_idxs} # List of bonds indicies in list.
+        bonds_with = {i: [] for i in atom_idxs}  # List of atom types that atom bonds with.
+
+        # Note, bond counts should be double counted, since we are interested in the number of bonds on each atom
+        # not the number of total bonds here.
+        for bond_idx, bond in enumerate(bonds):
+            for i in bond:
+                bond_count[i] += 1
+                bonds_present[i].extend([bond])
+                bonds_present_idxs[i].extend([bond_idx])
+                bonds_with[i].extend([symbols[j] for j in bond if j != i])
+
+        return bond_count, bonds_present, bonds_present_idxs, bonds_with
+
+    # ---- Misc. Helper Functions
+    def insert_atoms(self, atoms, position=None, new_bonds=None, new_bond_types=None):
+        # New bonds use the index of the individual atoms object in order [self, atoms].
+        atoms_copy = copy.deepcopy(atoms)
+        if position is not None:
+            atoms_center = atoms_copy.get_center_of_positions()
+            atoms_copy.shift_atoms(position-atoms_center)
+        
+        # Update all minimal info
+        self.symbols = np.concatenate([self.symbols, atoms_copy.symbols])
+        self.indicies = np.concatenate([self.indicies, atoms_copy.indicies + self.num_atoms])
+        self.positions = np.concatenate([self.positions, atoms_copy.positions])
+
+        # Bonds should always be accompanied by bond types.
+        if not (self.bonds.size == 0 or atoms_copy.bonds.size == 0):
+            self.bonds = np.concatenate([self.bonds, atoms_copy.bonds + self.num_atoms])
+            self.bond_types = np.concatenate([self.bond_types, atoms_copy.bond_types])
+
+        if (new_bonds is not None and new_bond_types is not None):
+            if new_bonds.shape[0] != new_bond_types.shape[0]:
+                raise ValueError("new_bonds.shape must equal new_bond_types.shape")
+            self.bonds = np.concatenate([self.bonds, new_bonds + np.array([0, self.num_atoms])])
+            self.bond_types = np.concatenate([self.bond_types, new_bond_types])
+
+        self.num_atoms += atoms_copy.num_atoms
+        
     def create_extended_cell_minimal(self, max_bond_length=5.0):
         """Creates a minimally extended cell to speed up O(N^2) bond check. This functions is O(N).
 
@@ -427,14 +506,42 @@ class Atoms:
 
         return extended_atom_symbols, extended_atom_positions, pseudo_indicies
 
+    def calculate_bounding_box(self, padding=0.0, set_cell=False):
+        max_xyz = self.positions.max(axis=0) + padding
+        if set_cell:
+            self.cell_lengths = max_xyz
+            self.cell_angles = np.array([90.0, 90.0, 90.0])
+            self.unit_cell = UnitCell(self.cell_lengths, self.cell_angles)
+            self.center_in_cell()
+
     def view(self, **kwargs):
         view_structure(self, self.bonds, self.boundary_bonds, **kwargs) 
 
+    def overlap_at_point(self, position, overlap_dist=1.0):
+        # Sort positions to increase speed of finding overlap.
+        # Sorting breaks this somehow...
+        # FIXME: Must also sort the posiition arrays... not just the outer list. Yup! 
+        # sorted_positions = np.sort(self.positions)
+        for atom_pos in self.positions:
+            dist = calculate_distance(atom_pos, position)
+            if dist <= overlap_dist:
+                return True
+        return False
+
+    def delete_atoms(self, atom_idxs, reset_indicies=False):
+        # TODO: More elegantly handle other values like masses, charges, etc.
+        self.symbols = np.delete(self.symbols, atom_idxs)
+        self.positions = np.delete(self.positions, atom_idxs, axis=0)
+        self.num_atoms = len(self.symbols)
+        if reset_indicies:
+            self.indicies = np.array([i for i in range(self.num_atoms)])
+
 
 class Crystal(Atoms):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
     
+    # TODO: Type check num cells? Soon we have to do this everywhere... Just document.
     def build_supercell(self, num_cells, filename=None):
         crystal = self.ase_atoms
         ao, bo, co = [num_cells[0], 0, 0], [0, num_cells[1], 0], [0, 0, num_cells[2]]
@@ -465,23 +572,52 @@ class UnitCell:
         assert((0 < cell_lengths).all())
         assert((180 > cell_lengths).all())
 
-    def get_frac_to_cart_matrix(self):
+    def _calculate_omega(self):
         a, b, c = self.cell_lengths
         alpha, beta, gamma = np.deg2rad(self.cell_angles)
 
         omega = (
-            a
-            * b
-            * c
+            a 
+            * b 
+            * c 
             * (
-                1
-                - np.cos(alpha) ** 2
-                - np.cos(beta) ** 2
-                - np.cos(gamma) ** 2
+                1 
+                - np.cos(alpha) ** 2 
+                - np.cos(beta) ** 2 
+                - np.cos(gamma) ** 2 
                 + 2 * np.cos(alpha) * np.cos(beta) * np.cos(gamma)
             )
             ** 0.5
         )
+
+        return omega
+
+    def get_cart_to_frac_matrix(self):
+        a, b, c = self.cell_lengths
+        alpha, beta, gamma = np.deg2rad(self.cell_angles)
+        omega = self._calculate_omega()
+
+        cart_to_frac_matrix = [
+            [
+                1 / a,
+                -np.cos(gamma) / (a * np.sin(gamma)),
+                b * c * (np.cos(alpha) * np.cos(gamma) - np.cos(beta)) / (omega * np.sin(gamma))
+            ],
+            [
+                0,
+                1 / (b * np.sin(gamma)),
+                a * c * (np.cos(beta) * np.cos(gamma) - np.cos(alpha)) / (omega * np.sin(gamma))
+            ],
+            [0, 0, (a * b * np.sin(gamma)) / omega]
+        ]
+
+        return cart_to_frac_matrix
+
+    def get_frac_to_cart_matrix(self):
+        a, b, c = self.cell_lengths
+        alpha, beta, gamma = np.deg2rad(self.cell_angles)
+        omega = self._calculate_omega()
+
         frac_to_cart_matrix = [
             [a, b * np.cos(gamma), c * np.cos(beta)],
             [
@@ -516,6 +652,15 @@ class UnitCell:
 
 
 # --- Intramolecular Forcefield Terms
+# TODO: Update calculate bond functions and input functions.
+# Make an optional type? Or separate info into Atoms obj.
+class Bond:
+    def __init__(self, atoms, bond_type, bond_order=None):
+        self.atoms = atoms
+        self.bond_type = bond_type
+        self.bond_order = bond_order
+
+
 class Angle:
     def __init__(self, center_atom, ordered_atoms):
         self.center_atom = center_atom
@@ -528,6 +673,7 @@ class Improper:
         self.ordered_atoms = ordered_atoms     
 
 
+# TODO: Add method to convert to Atoms Obj (Already written in view)
 class SimulationBox:
     def __init__(self):
         # Atoms
@@ -548,8 +694,8 @@ class SimulationBox:
 
         return sim_box
     
+    # TODO: Allow for positions in fractional coords.
     def insert_atoms(self, atoms, position=None):
-        # Add methods for rotation about center of postions, center of mass, and point.
         atoms_copy = copy.deepcopy(atoms)
         if position is not None:
             atoms_cop = atoms_copy.get_center_of_positions()
@@ -557,21 +703,33 @@ class SimulationBox:
         self.atoms_objs = np.append(self.atoms_objs, atoms_copy)
 
     def view(self):
-        all_symbols = np.array([obj.symbols for obj in self.atoms_objs]).flatten()
-        all_positions = np.array([obj.positions for obj in self.atoms_objs]).reshape(-1,3)
+        all_symbols = np.concatenate([obj.symbols for obj in self.atoms_objs])
+        all_positions = np.vstack([obj.positions for obj in self.atoms_objs])
+
+        # It is faster to append to lists and convert to numpy arrays
+        # and cannot concat an emtpy array and array with definite shape.
         all_bonds = []
         all_boundary_bonds = []
 
         atom_count = 0
         for obj in self.atoms_objs:
-            all_bonds.append(obj.bonds + atom_count)
-            all_boundary_bonds.append(obj.boundary_bonds + atom_count)
+            if obj.bonds.size != 0:
+                all_bonds.append(obj.bonds + atom_count)
+            if obj.boundary_bonds.size != 0:
+                all_boundary_bonds.append(obj.boundary_bonds + atom_count)
             atom_count += obj.num_atoms
-        all_bonds = np.array(all_bonds).reshape(-1, 2)
-        all_boundary_bonds = np.array(all_boundary_bonds).reshape(-1, 2)
 
-        # TODO: View works with Atoms obj at the moment. Consider general refactor for various
-        # strucutural needs.
+        # Convert to numpy arrays, even if no bonds present.
+        if len(all_bonds) != 0:
+            all_bonds = np.concatenate(all_bonds, axis=0)
+        else:
+            all_bonds = np.array([])
+
+        if len(all_boundary_bonds) != 0:
+            all_boundary_bonds = np.concatenate(all_boundary_bonds, axis=0)
+        else:
+            all_boundary_bonds = np.array([])
+
         atoms_obj = Atoms(all_symbols, all_positions)
         atoms_obj.bonds = all_bonds
         atoms_obj.boundary_bonds = all_boundary_bonds
@@ -582,3 +740,10 @@ class SimulationBox:
     def build_supercell():
         pass
 
+    def overlap_at_point(self, position, overlap_dist=1.0):
+        for atoms_obj in self.atoms_objs:
+            if atoms_obj.overlap_at_point(position, overlap_dist=overlap_dist):
+                return True
+
+        return False
+    
