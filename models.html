@@ -30,7 +30,7 @@
   <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -383,13 +383,23 @@ list[list[int, int]]: list of bonds which cross the cell boundary, using the ext
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="atomaton.models.Atoms.calculate_bounding_box">
+<span class="sig-name descname"><span class="pre">calculate_bounding_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.calculate_bounding_box" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="atomaton.models.Atoms.calculate_dihedrals_and_impropers">
 <span class="sig-name descname"><span class="pre">calculate_dihedrals_and_impropers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">improper_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.calculate_dihedrals_and_impropers" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="atomaton.models.Atoms.center_atom_in_cell">
-<span class="sig-name descname"><span class="pre">center_atom_in_cell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.center_atom_in_cell" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="atomaton.models.Atoms.center_in_cell">
+<span class="sig-name descname"><span class="pre">center_in_cell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.center_in_cell" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="atomaton.models.Atoms.center_on_position">
+<span class="sig-name descname"><span class="pre">center_on_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.center_on_position" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -408,8 +418,28 @@ ValueError: max_bond_length must be less than half the length of the shortes uni
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="atomaton.models.Atoms.delete_atoms">
+<span class="sig-name descname"><span class="pre">delete_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_indicies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.delete_atoms" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="atomaton.models.Atoms.get_bonds_metadata">
+<span class="sig-name descname"><span class="pre">get_bonds_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.get_bonds_metadata" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="atomaton.models.Atoms.get_center_of_positions">
 <span class="sig-name descname"><span class="pre">get_center_of_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.get_center_of_positions" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="atomaton.models.Atoms.insert_atoms">
+<span class="sig-name descname"><span class="pre">insert_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_bond_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.insert_atoms" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="atomaton.models.Atoms.overlap_at_point">
+<span class="sig-name descname"><span class="pre">overlap_at_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Atoms.overlap_at_point" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -425,8 +455,14 @@ ValueError: max_bond_length must be less than half the length of the shortes uni
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="atomaton.models.Bond">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">atomaton.models.</span></span><span class="sig-name descname"><span class="pre">Bond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Bond" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="atomaton.models.Crystal">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">atomaton.models.</span></span><span class="sig-name descname"><span class="pre">Crystal</span></span><a class="headerlink" href="#atomaton.models.Crystal" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">atomaton.models.</span></span><span class="sig-name descname"><span class="pre">Crystal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.Crystal" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#atomaton.models.Atoms" title="atomaton.models.Atoms"><code class="xref py py-class docutils literal notranslate"><span class="pre">Atoms</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="atomaton.models.Crystal.build_supercell">
@@ -461,6 +497,11 @@ ValueError: max_bond_length must be less than half the length of the shortes uni
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="atomaton.models.SimulationBox.overlap_at_point">
+<span class="sig-name descname"><span class="pre">overlap_at_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.SimulationBox.overlap_at_point" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="atomaton.models.SimulationBox.view">
 <span class="sig-name descname"><span class="pre">view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.SimulationBox.view" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -471,6 +512,11 @@ ValueError: max_bond_length must be less than half the length of the shortes uni
 <dt class="sig sig-object py" id="atomaton.models.UnitCell">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">atomaton.models.</span></span><span class="sig-name descname"><span class="pre">UnitCell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacegroup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P1'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.UnitCell" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="atomaton.models.UnitCell.get_cart_to_frac_matrix">
+<span class="sig-name descname"><span class="pre">get_cart_to_frac_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.UnitCell.get_cart_to_frac_matrix" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="atomaton.models.UnitCell.get_center_of_cell">
 <span class="sig-name descname"><span class="pre">get_center_of_cell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.models.UnitCell.get_center_of_cell" title="Link to this definition">#</a></dt>
@@ -545,14 +591,21 @@ ValueError: max_bond_length must be less than half the length of the shortes uni
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.bind_from_file"><code class="docutils literal notranslate"><span class="pre">Atoms.bind_from_file()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.calculate_angles"><code class="docutils literal notranslate"><span class="pre">Atoms.calculate_angles()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.calculate_bonds"><code class="docutils literal notranslate"><span class="pre">Atoms.calculate_bonds()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.calculate_bounding_box"><code class="docutils literal notranslate"><span class="pre">Atoms.calculate_bounding_box()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.calculate_dihedrals_and_impropers"><code class="docutils literal notranslate"><span class="pre">Atoms.calculate_dihedrals_and_impropers()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.center_atom_in_cell"><code class="docutils literal notranslate"><span class="pre">Atoms.center_atom_in_cell()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.center_in_cell"><code class="docutils literal notranslate"><span class="pre">Atoms.center_in_cell()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.center_on_position"><code class="docutils literal notranslate"><span class="pre">Atoms.center_on_position()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.create_extended_cell_minimal"><code class="docutils literal notranslate"><span class="pre">Atoms.create_extended_cell_minimal()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.delete_atoms"><code class="docutils literal notranslate"><span class="pre">Atoms.delete_atoms()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.get_bonds_metadata"><code class="docutils literal notranslate"><span class="pre">Atoms.get_bonds_metadata()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.get_center_of_positions"><code class="docutils literal notranslate"><span class="pre">Atoms.get_center_of_positions()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.insert_atoms"><code class="docutils literal notranslate"><span class="pre">Atoms.insert_atoms()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.overlap_at_point"><code class="docutils literal notranslate"><span class="pre">Atoms.overlap_at_point()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.shift_atoms"><code class="docutils literal notranslate"><span class="pre">Atoms.shift_atoms()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Atoms.view"><code class="docutils literal notranslate"><span class="pre">Atoms.view()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Bond"><code class="docutils literal notranslate"><span class="pre">Bond</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Crystal"><code class="docutils literal notranslate"><span class="pre">Crystal</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.Crystal.build_supercell"><code class="docutils literal notranslate"><span class="pre">Crystal.build_supercell()</span></code></a></li>
 </ul>
@@ -562,10 +615,12 @@ ValueError: max_bond_length must be less than half the length of the shortes uni
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.SimulationBox.build_supercell"><code class="docutils literal notranslate"><span class="pre">SimulationBox.build_supercell()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.SimulationBox.create_from_atoms"><code class="docutils literal notranslate"><span class="pre">SimulationBox.create_from_atoms()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.SimulationBox.insert_atoms"><code class="docutils literal notranslate"><span class="pre">SimulationBox.insert_atoms()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.SimulationBox.overlap_at_point"><code class="docutils literal notranslate"><span class="pre">SimulationBox.overlap_at_point()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.SimulationBox.view"><code class="docutils literal notranslate"><span class="pre">SimulationBox.view()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.UnitCell"><code class="docutils literal notranslate"><span class="pre">UnitCell</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.UnitCell.get_cart_to_frac_matrix"><code class="docutils literal notranslate"><span class="pre">UnitCell.get_cart_to_frac_matrix()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.UnitCell.get_center_of_cell"><code class="docutils literal notranslate"><span class="pre">UnitCell.get_center_of_cell()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.UnitCell.get_corners"><code class="docutils literal notranslate"><span class="pre">UnitCell.get_corners()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.models.UnitCell.get_frac_to_cart_matrix"><code class="docutils literal notranslate"><span class="pre">UnitCell.get_frac_to_cart_matrix()</span></code></a></li>

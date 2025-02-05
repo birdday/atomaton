@@ -29,7 +29,7 @@
   <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -307,6 +307,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#U"><strong>U</strong></a>
@@ -369,6 +370,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="models.html#atomaton.models.Atoms.bind_from_file">bind_from_file() (atomaton.models.Atoms class method)</a>
 </li>
+      <li><a href="models.html#atomaton.models.Bond">Bond (class in atomaton.models)</a>
+</li>
       <li><a href="models.html#atomaton.models.Crystal.build_supercell">build_supercell() (atomaton.models.Crystal method)</a>
 
       <ul>
@@ -385,14 +388,18 @@
 </li>
       <li><a href="models.html#atomaton.models.Atoms.calculate_bonds">calculate_bonds() (atomaton.models.Atoms method)</a>
 </li>
+      <li><a href="models.html#atomaton.models.Atoms.calculate_bounding_box">calculate_bounding_box() (atomaton.models.Atoms method)</a>
+</li>
       <li><a href="models.html#atomaton.models.Atoms.calculate_dihedrals_and_impropers">calculate_dihedrals_and_impropers() (atomaton.models.Atoms method)</a>
 </li>
-      <li><a href="models.html#atomaton.models.Atoms.center_atom_in_cell">center_atom_in_cell() (atomaton.models.Atoms method)</a>
+      <li><a href="models.html#atomaton.models.Atoms.center_in_cell">center_in_cell() (atomaton.models.Atoms method)</a>
 </li>
-      <li><a href="visualize.html#atomaton.visualize.convert_images_to_gif">convert_images_to_gif() (in module atomaton.visualize)</a>
+      <li><a href="models.html#atomaton.models.Atoms.center_on_position">center_on_position() (atomaton.models.Atoms method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="visualize.html#atomaton.visualize.convert_images_to_gif">convert_images_to_gif() (in module atomaton.visualize)</a>
+</li>
       <li><a href="usage.html#atomaton.analyze.create_extended_cell">create_extended_cell() (in module atomaton.analyze)</a>
 </li>
       <li><a href="models.html#atomaton.models.Atoms.create_extended_cell_minimal">create_extended_cell_minimal() (atomaton.models.Atoms method)</a>
@@ -411,6 +418,8 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.Atoms.delete_atoms">delete_atoms() (atomaton.models.Atoms method)</a>
+</li>
       <li><a href="visualize.html#atomaton.visualize.draw_atoms">draw_atoms() (in module atomaton.visualize)</a>
 </li>
   </ul></td>
@@ -429,16 +438,20 @@
 </li>
       <li><a href="usage.html#atomaton.analyze.get_bond_properties">get_bond_properties() (in module atomaton.analyze)</a>
 </li>
+      <li><a href="models.html#atomaton.models.Atoms.get_bonds_metadata">get_bonds_metadata() (atomaton.models.Atoms method)</a>
+</li>
       <li><a href="usage.html#atomaton.analyze.get_bonds_on_atom">get_bonds_on_atom() (in module atomaton.analyze)</a>
+</li>
+      <li><a href="models.html#atomaton.models.UnitCell.get_cart_to_frac_matrix">get_cart_to_frac_matrix() (atomaton.models.UnitCell method)</a>
 </li>
       <li><a href="models.html#atomaton.models.UnitCell.get_center_of_cell">get_center_of_cell() (atomaton.models.UnitCell method)</a>
 </li>
       <li><a href="models.html#atomaton.models.Atoms.get_center_of_positions">get_center_of_positions() (atomaton.models.Atoms method)</a>
 </li>
-      <li><a href="models.html#atomaton.models.UnitCell.get_corners">get_corners() (atomaton.models.UnitCell method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.UnitCell.get_corners">get_corners() (atomaton.models.UnitCell method)</a>
+</li>
       <li><a href="models.html#atomaton.models.UnitCell.get_frac_to_cart_matrix">get_frac_to_cart_matrix() (atomaton.models.UnitCell method)</a>
 </li>
       <li><a href="lammps.html#atomaton.write_lammps_files.get_lammps_box_parameters">get_lammps_box_parameters() (in module atomaton.write_lammps_files)</a>
@@ -461,8 +474,12 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="models.html#atomaton.models.SimulationBox.insert_atoms">insert_atoms() (atomaton.models.SimulationBox method)</a>
+      <li><a href="models.html#atomaton.models.Atoms.insert_atoms">insert_atoms() (atomaton.models.Atoms method)</a>
+
+      <ul>
+        <li><a href="models.html#atomaton.models.SimulationBox.insert_atoms">(atomaton.models.SimulationBox method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -480,6 +497,18 @@
         <li><a href="visualize.html#module-atomaton.visualize">atomaton.visualize</a>
 </li>
         <li><a href="lammps.html#module-atomaton.write_lammps_files">atomaton.write_lammps_files</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="models.html#atomaton.models.Atoms.overlap_at_point">overlap_at_point() (atomaton.models.Atoms method)</a>
+
+      <ul>
+        <li><a href="models.html#atomaton.models.SimulationBox.overlap_at_point">(atomaton.models.SimulationBox method)</a>
 </li>
       </ul></li>
   </ul></td>
