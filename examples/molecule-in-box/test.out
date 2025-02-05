@@ -1,0 +1,29 @@
+# COMMENT LINE 1 
+# COMMENT LINE 2 
+
+21 atoms
+10 bonds
+10 angles
+10 dihedrals
+0 impropers
+
+3 atom types
+3 bond types
+3 angle types
+3 dihedral types
+0 improper types
+
+0.0 30 xlo xhi
+0.0 30.0 ylo yhi
+0.0 30.0 zlo zhi
+0.0 0.0 0.0 xy xz yz
+
+Masses
+# Mass Style: atom_id, mass
+1 12.0107 #C
+2 1.00794 #H
+3 12.0107 #C_sp2
+4 12.0107 #C_sp3
+5 39.948 #Ar
+6 15.9994 #O
+7 18.9984032 #F

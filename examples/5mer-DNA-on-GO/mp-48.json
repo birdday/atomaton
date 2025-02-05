@@ -1,0 +1,34 @@
+{
+  "crystal_structure": {
+    "atomic_positions": [
+      {
+        "wyckoff": "2b",
+        "element": "C",
+        "x": "0",
+        "y": "0",
+        "z": "1/4"
+      },
+      {
+        "wyckoff": "2c",
+        "element": "C",
+        "x": "1/3",
+        "y": "2/3",
+        "z": "1/4"
+      }
+    ],
+    "symmetry": {
+      "crystal_system": "Hexagonal",
+      "lattice_system": "Hexagonal",
+      "hall_number": "-P 6c 2c",
+      "international_number": 194,
+      "symbol": "P6₃/mmc",
+      "point_group": "6/mmm"
+    },
+    "structure_meta": {
+      "number_of_atoms": 4,
+      "density": "1.94 g·cm⁻³",
+      "dimensionality": "",
+      "possible_oxidation_states": "C⁰⁺"
+    }
+  }
+}
