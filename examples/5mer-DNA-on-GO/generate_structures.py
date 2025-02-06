@@ -25,7 +25,7 @@ objects = {
         "bond_color": (0.4, 0.4, 0.4),
         "cell_color": (0.4, 0.4, 0.4),
     }
-# actga.view(show_unit_cell=False, objects=objects)
+actga.view(show_unit_cell=False, objects=objects)
 
 
 # ---- Basic Graphene
@@ -54,21 +54,21 @@ bond_counts, bonds_present, bonds_present_idxs, bonds_with = graphene.get_bonds_
 atoms_to_del = [key for key, val in bond_counts.items() if val == 1]
 graphene.delete_atoms(atoms_to_del, reset_indicies=True)
 graphene.calculate_bonds(cutoffs={"default":[0, 1.2], "C-C": [0, 1.5]})
-# graphene.view()
+graphene.view()
 
 # ---- Wrinkled Graphene
 # For use in sims, ensure periodicity of the wrinkling is compatible with
 # actual cell lengths
-# def wrinkle_fxn(pos):
-#     return np.array([pos[0], pos[1],
-#                      pos[2] + 2*np.sin(pos[0]/6) + 2*np.sin(pos[1]/6) ])
+def wrinkle_fxn(pos):
+    return np.array([pos[0], pos[1],
+                     pos[2] + 2*np.sin(pos[0]/6) + 2*np.sin(pos[1]/6) ])
 
-# wrinkled_graph = copy.deepcopy(graphene)
-# pos_new = []
-# for pos in wrinkled_graph.positions:
-#     pos_new.append(wrinkle_fxn( pos))
-# wrinkled_graph.positions = np.array(pos_new)
-# wrinkled_graph.view()
+wrinkled_graph = copy.deepcopy(graphene)
+pos_new = []
+for pos in wrinkled_graph.positions:
+    pos_new.append(wrinkle_fxn( pos))
+wrinkled_graph.positions = np.array(pos_new)
+wrinkled_graph.view()
 
 
 # ---- Graphene Oxide
@@ -122,10 +122,10 @@ epoxide.calculate_bonds(cutoffs={"default":[0, 1.5], "C-C": [0, 1.5]})
 # Anything with 1 or 2 atoms is an edge atom, anything with 3 is basal plane.
 bond_counts, bonds_present, bonds_present_idxs, bonds_with = graphene_oxide.get_bonds_metadata()
 # Visualize to confirm correct edge detection
-# for key, val in bond_counts.items():
-#     if val != 3:
-#         graphene.symbols[key] = 'Ar'
-# graphene.view()
+for key, val in bond_counts.items():
+    if val != 3:
+        graphene.symbols[key] = 'Ar'
+graphene.view()
 
 positions = graphene_oxide.positions
 cell_x = graphene_oxide.cell_lengths[0]
@@ -179,7 +179,7 @@ for i in range(graphene_oxide.num_atoms):
 
 # new_bond_set = np.delete(graphene_oxide.bonds, bonds_to_remove, axis=0)
 # graphene_oxide.bonds = new_bond_set
-# graphene_oxide.view()
+graphene_oxide.view()
 
 
 # # --- Passivate Graphene Atoms
@@ -228,7 +228,7 @@ for i in range(graphene_oxide.num_atoms):
 # ---- Simulation Box
 sim_box = SimulationBox.create_from_atoms(graphene_oxide)
 sim_box.insert_atoms(actga, position=sim_box.unit_cell.get_center_of_cell())
-
+sim_box.view()
 
 # ---- Solvent Generation
 # TODO: Allow for specific opacities by molecule in Visulaization.
@@ -267,4 +267,4 @@ for xyz in valid_xyz_all:
     sim_box.insert_atoms(ArAtom, position=xyz+np.array([0,0,0]))
 
 # # ---- View
-sim_box.view()
+sim_box.view(opacity=0.5)
