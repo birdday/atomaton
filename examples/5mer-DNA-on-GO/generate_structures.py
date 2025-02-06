@@ -237,7 +237,7 @@ sim_box.view()
 # CWe can subdivide the grids to speed up the overlap caclulation. 
 cell_lengths = sim_box.cell_lengths
 cell_angles = sim_box.cell_angles
-ppx = 30
+ppx = 15
 
 xyz_all = np.array(list(itertools.product(np.linspace(0,1,ppx)[:-1], np.linspace(0,1,ppx)[:-1], np.linspace(0,1,ppx)[:-1])))
 xyz_all = xyz_all*np.array(cell_lengths)
@@ -246,25 +246,24 @@ xyz_all = xyz_all*np.array(cell_lengths)
 # Sorting positions somehow breaks the overlap fxn... figure this out.
 valid_xyz_all = []
 for xyz in xyz_all:
-    # ADD BACK NOT - THIS IS FOR TESTING!
-    if sim_box.overlap_at_point(xyz, overlap_dist=3.0):
+    if not sim_box.overlap_at_point(xyz, overlap_dist=3.0):
         valid_xyz_all.extend([xyz])
 valid_xyz_all = np.array(valid_xyz_all)
 
-# h2o = Atoms.bind_from_file("../water.xyz")
-# h2o.cell_lengths = np.array([5,5,5])
-# h2o.cell_angles = np.array([90,90,90])
-# h2o.calculate_bonds()
+h2o = Atoms.bind_from_file("../water.xyz")
+h2o.cell_lengths = np.array([5,5,5])
+h2o.cell_angles = np.array([90,90,90])
+h2o.calculate_bonds()
 
-ArAtom = Atoms(
-    symbols=np.array(["K"]),
-    positions=np.array([[0.0, 0.0, 0.0]])
-)
-ArAtom.cell_lengths = np.array([5,5,5])
-ArAtom.cell_angles = np.array([90,90,90])
+# ArAtom = Atoms(
+#     symbols=np.array(["K"]),
+#     positions=np.array([[0.0, 0.0, 0.0]])
+# )
+# ArAtom.cell_lengths = np.array([5,5,5])
+# ArAtom.cell_angles = np.array([90,90,90])
 
 for xyz in valid_xyz_all:
-    sim_box.insert_atoms(ArAtom, position=xyz+np.array([0,0,0]))
+    sim_box.insert_atoms(h2o, position=xyz+np.array([0,0,0]))
 
 # # ---- View
 sim_box.view(opacity=0.5)
