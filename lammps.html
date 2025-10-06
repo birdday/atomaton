@@ -349,9 +349,99 @@
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_angle_coeff_section">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_angle_coeff_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_type_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_angle_coeff_section" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_angle_section">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_angle_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_coeffs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_angle_section" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_atom_section">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_atom_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_indicies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">molecule_indicies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pair_coeffs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_atom_section" title="Link to this definition">#</a></dt>
+<dd><p>Currently only supports atom type, Full.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_bond_coeff_section">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_bond_coeff_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond_type_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_bond_coeff_section" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_bond_section">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_bond_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_coeffs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_bond_section" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_box_info">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_box_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_angles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_box_info" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_header">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dihedrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dihedral_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impropers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improper_types</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_header" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_header_comments">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_header_comments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_header_comments" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="atomaton.write_lammps_files.write_lammps_data_file">
 <span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_lammps_data_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_atom_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_type_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_bond_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_type_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_angle_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_type_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_dihedrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_dihedral_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_impropers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_improper_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_lammps_data_file" title="Link to this definition">#</a></dt>
+<dd><p>Generate a LAMMPS data file from various structure information.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filename (str): path, including file name, of the file to generate
+atoms (Atoms): 
+ff_atom_types (list[str, str]): _description_
+atom_type_params (_type_): _description_
+mol_ids (_type_): _description_
+cell_lengths (_type_): _description_
+cell_angles (_type_): _description_
+all_bonds (_type_): _description_
+all_bond_types (_type_): _description_
+bond_type_params (_type_): _description_
+all_angles (_type_): _description_
+all_angle_types (_type_): _description_
+angle_type_params (_type_): _description_
+all_dihedrals (_type_): _description_
+all_dihedral_types (_type_): _description_
+all_impropers (_type_): _description_
+all_improper_types (_type_): _description_
+degrees (bool, optional): _description_. Defaults to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_lammps_data_file_alt">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_lammps_data_file_alt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_angles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_lammps_data_file_alt" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_mass_section">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_mass_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_types</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_mass_section" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_multibody_terms_header">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_multibody_terms_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dihedrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dihedral_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impropers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improper_types</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_multibody_terms_header" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="atomaton.write_lammps_files.write_pair_coeff_section">
+<span class="sig-prename descclassname"><span class="pre">atomaton.write_lammps_files.</span></span><span class="sig-name descname"><span class="pre">write_pair_coeff_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_type_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#atomaton.write_lammps_files.write_pair_coeff_section" title="Link to this definition">#</a></dt>
+<dd><p>Writes lammps data file section for the individual pair parameters for lennard-jones bonding.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>atom_type_params (dict[str, list[float…]]): lennard-jones sigma and epsilon for the individual atom type</p>
+</dd>
+<dt>Returns:</dt><dd><p>list[str]: pair coeff lines</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>
@@ -406,7 +496,19 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-atomaton.write_lammps_files">LAMMPS Input File Generation: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atomaton.write_lammps_files</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.get_lammps_box_parameters"><code class="docutils literal notranslate"><span class="pre">get_lammps_box_parameters()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.get_masses"><code class="docutils literal notranslate"><span class="pre">get_masses()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_angle_coeff_section"><code class="docutils literal notranslate"><span class="pre">write_angle_coeff_section()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_angle_section"><code class="docutils literal notranslate"><span class="pre">write_angle_section()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_atom_section"><code class="docutils literal notranslate"><span class="pre">write_atom_section()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_bond_coeff_section"><code class="docutils literal notranslate"><span class="pre">write_bond_coeff_section()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_bond_section"><code class="docutils literal notranslate"><span class="pre">write_bond_section()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_box_info"><code class="docutils literal notranslate"><span class="pre">write_box_info()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_header"><code class="docutils literal notranslate"><span class="pre">write_header()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_header_comments"><code class="docutils literal notranslate"><span class="pre">write_header_comments()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_lammps_data_file"><code class="docutils literal notranslate"><span class="pre">write_lammps_data_file()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_lammps_data_file_alt"><code class="docutils literal notranslate"><span class="pre">write_lammps_data_file_alt()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_mass_section"><code class="docutils literal notranslate"><span class="pre">write_mass_section()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_multibody_terms_header"><code class="docutils literal notranslate"><span class="pre">write_multibody_terms_header()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atomaton.write_lammps_files.write_pair_coeff_section"><code class="docutils literal notranslate"><span class="pre">write_pair_coeff_section()</span></code></a></li>
 </ul>
 </li>
 </ul>
