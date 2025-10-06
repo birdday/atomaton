@@ -13,7 +13,7 @@ syms = np.array(['H' for _ in range(len(xyz))])
 lattice = Atoms(symbols=syms, positions=xyz)
 lattice.cell_lengths = cell_lengths
 lattice.cell_angles = cell_angles
-lattice.center_atom_in_cell()
+lattice.center_in_cell()
 lattice_xyz = lattice.positions
 
 simbox = SimulationBox()

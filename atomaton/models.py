@@ -702,7 +702,7 @@ class SimulationBox:
             atoms_copy.shift_atoms(position-atoms_cop)
         self.atoms_objs = np.append(self.atoms_objs, atoms_copy)
 
-    def view(self):
+    def view(self, **kwargs):
         all_symbols = np.concatenate([obj.symbols for obj in self.atoms_objs])
         all_positions = np.vstack([obj.positions for obj in self.atoms_objs])
 
@@ -735,7 +735,7 @@ class SimulationBox:
         atoms_obj.boundary_bonds = all_boundary_bonds
         atoms_obj.cell_lengths = self.cell_lengths
         atoms_obj.cell_angles = self.cell_angles
-        atoms_obj.view()
+        atoms_obj.view(**kwargs)
 
     def build_supercell():
         pass

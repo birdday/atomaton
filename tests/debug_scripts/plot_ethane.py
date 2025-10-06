@@ -10,7 +10,7 @@ ethane.cell_angles = np.array([75, 75, 75])
 ethane.calculate_bonds(cutoffs={"default": [0,2], "H-H": [1.0]})
 ethane.calculate_angles()
 ethane.calculate_dihedrals_and_impropers()
-ethane.center_atom_in_cell()
+ethane.center_in_cell()
 ethane.view()
 
 ethane_sim_box = SimulationBox.create_from_atoms(ethane)
