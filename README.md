@@ -2,6 +2,8 @@
 
 ATOMOTON
 
+[DOCS](https://birdday.github.io/atomaton/)
+
 Overview: Alternative to topotools, with more flexibility.
 
 Features:
